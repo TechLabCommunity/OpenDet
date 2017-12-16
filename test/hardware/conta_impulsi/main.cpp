@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #define FRQ_PIN 2
 //Counter max value, if counter reach this value it will be reset
 #define COUNTER_MAX 200

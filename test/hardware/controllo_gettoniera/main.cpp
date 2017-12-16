@@ -1,5 +1,6 @@
 // DavidMaitland.me 2015
 // See LICENSE file for licensing details
+#include <Arduino.h>
 
 const int coinSelector = A0; // Analog input pin that the coin selector uses
 const int signalCostFactor = 10; // Each signal pulse is worth 5p
@@ -64,7 +65,7 @@ void loop() {
     }
   }
 
-  if (state != lastState) {    
+  if (state != lastState) {
     // Process new signal
 
     if (state == 1) {
