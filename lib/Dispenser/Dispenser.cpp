@@ -4,7 +4,7 @@
 Dispenser::Dispenser(int btnPin, int flowPin, int pumpPin, int pulsesPerLiter, String detName){
 
   pinMode(btnPin, INPUT);
-  pinMode(flowPin, OUTPUT);
+  pinMode(flowPin, INPUT);
   pinMode(pumpPin, OUTPUT);
 
   _btnPin = btnPin;
