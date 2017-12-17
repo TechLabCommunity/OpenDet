@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <MsTimer2.h>
 
 #define DEBUG1
@@ -76,11 +77,10 @@ void pulseCounter(){
   if (fluxCounter == maxCounter) {
     //code to execute when counter has reachet its maximum
     Serial.println(millis());
-    fluxCounter = 0;    
+    fluxCounter = 0;
     fine_erogazione = true;
 #ifdef DEBUG1
     Serial.println("Loading Complete");
 #endif
   }
 }
-

@@ -1,8 +1,7 @@
 #include "Dispenser.h"
 #include "Arduino.h"
 
-Dispenser::Dispenser(int btnPin, int flowPin, int pumpPin, int pulsesPerLiter,
-  String detName){
+Dispenser::Dispenser(int btnPin, int flowPin, int pumpPin, int pulsesPerLiter, String detName){
 
   pinMode(btnPin, INPUT);
   pinMode(flowPin, OUTPUT);
@@ -38,22 +37,17 @@ String Dispenser::getDetName(){
 
 //think about return type, void is not the best solution
 void Dispenser::dispense(double liters){
-  int pulses = liters * _pulsesPerLiter;
-  int counter = 0;
-  digitalWrite(_pumpPin, HIGH);
-  int prevState = 0;
-  int currState = 0;
+  int pulses = liters * _pulsesPerLiter, counter = 0, prevState = 0, currState = 0;
   //eventually subtract error due to detergent inertia
   //when i stop the pump some detergent can flow, going over the required quantity
   //adding this error requires another class variable and relative contrustor param
+  digitalWrite(_pumpPin, HIGH);
   while (counter <= pulses /*- inertiaError*/){
-
     currState = digitalRead(_flowPin);
     if (currState != prevState) {
       counter++;
       prevState = currState;
     }
-
     //function to updateLCD
   }
   digitalWrite(_pumpPin, LOW);
