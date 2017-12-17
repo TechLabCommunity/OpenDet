@@ -10,15 +10,21 @@
 #define ACTIVE_LOW 0
 #define ACTIVE_HIGH 1
 
+#define NC 1
+#define NO 0
+
 class CH926{
   public:
-    CH926(int, int, int);
+    CH926(int, int, int, int);
     void start();
     void stop();
+    int countPulses(unsigned long);
   private:
     int _sigPin;
     int _pwrPin;
-    int _logic;
+    int _sigLogic;
+    int _pwrLogic;
+    int _state;
 };
 
 #endif
