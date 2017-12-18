@@ -12,7 +12,7 @@
 class Dispenser{
   public:
 
-    Dispenser(int, int, int, int, String);
+    Dispenser(int, int, int, int, String, int);
     int getBtnPin();
     int getFlowPin();
     int getPulses();
@@ -27,6 +27,7 @@ class Dispenser{
     int _pulsesPerLiter;
     int _pumpPin;
     String _detName;
+    int _detPrice;
 };
 
 #endif

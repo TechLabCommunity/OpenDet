@@ -1,7 +1,7 @@
 #include "Dispenser.h"
 #include "Arduino.h"
 
-Dispenser::Dispenser(int btnPin, int flowPin, int pumpPin, int pulsesPerLiter, String detName){
+Dispenser::Dispenser(int btnPin, int flowPin, int pumpPin, int pulsesPerLiter, String detName, int detPrice){
 
   pinMode(btnPin, INPUT);
   pinMode(flowPin, INPUT);
@@ -12,6 +12,7 @@ Dispenser::Dispenser(int btnPin, int flowPin, int pumpPin, int pulsesPerLiter, S
   _pulsesPerLiter = pulsesPerLiter;
   _pumpPin = pumpPin;
   _detName = detName;
+  _detPrice = detPrice;
 
 }
 
@@ -35,14 +36,12 @@ String Dispenser::getDetName(){
   return _detName;
 }
 
-//think about return type, void is not the best solution
+//I can return detPrice, so I can subtract it to balance (ask Giusti)
 void Dispenser::dispense(double liters){
   int pulses = liters * _pulsesPerLiter, counter = 0, prevState = 0, currState = 0;
-  //eventually subtract error due to detergent inertia
-  //when i stop the pump some detergent can flow, going over the required quantity
-  //adding this error requires another class variable and relative contrustor param
+
   digitalWrite(_pumpPin, HIGH);
-  while (counter <= pulses /*- inertiaError*/){
+  while (counter <= pulses){
     currState = digitalRead(_flowPin);
     if (currState != prevState) {
       counter++;
