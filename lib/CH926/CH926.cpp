@@ -25,6 +25,15 @@ void CH926::stop(){
   _state = 0;
 }
 
+/*int CH926::countCoin(){
+  if (digitalRead(_sigPin) != _sigLogic) {
+    countPulses();
+  }
+  else {
+
+  }
+}*/
+
 int CH926::countPulses(unsigned long endTime){
   int currState = _sigLogic;
   int prevState = _sigLogic;

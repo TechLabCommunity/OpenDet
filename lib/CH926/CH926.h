@@ -18,6 +18,7 @@ class CH926{
     CH926(int, int, int, int);
     void start();
     void stop();
+    //int countCoin();
     int countPulses(unsigned long);
   private:
     int _sigPin;
