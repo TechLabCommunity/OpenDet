@@ -18,7 +18,8 @@ class Dispenser{
     int getPulses();
     int getPumpPin();
     String getDetName();
-    void dispense(double);
+    int getPrice();
+    void dispense(double = 1);
 
   private:
 

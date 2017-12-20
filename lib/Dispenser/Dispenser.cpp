@@ -36,6 +36,10 @@ String Dispenser::getDetName(){
   return _detName;
 }
 
+int Dispenser::getPrice(){
+  return _detPrice;
+}
+
 //I can return detPrice, so I can subtract it to balance (ask Giusti)
 void Dispenser::dispense(double liters){
   int pulses = liters * _pulsesPerLiter, counter = 0, prevState = 0, currState = 0;
