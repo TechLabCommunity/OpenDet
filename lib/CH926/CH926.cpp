@@ -1,5 +1,5 @@
 #include "CH926.h"
-#include "Controllino.h"
+#include <Controllino.h>
 
 CH926::CH926(int sigPin, int pwrPin, int sigLogic, int pwrLogic){
 

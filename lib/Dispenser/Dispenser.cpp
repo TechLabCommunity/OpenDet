@@ -1,6 +1,6 @@
 #include "Dispenser.h"
 
-Dispenser::Dispenser(int btnPin, int flowPin, int pumpPin, int pulsesPerLiter, String detName, int detPrice){
+Dispenser::Dispenser(int btnPin, int flowPin, int pumpPin, unsigned int pulsesPerLiter, String detName, unsigned int detPrice){
 
   pinMode(btnPin, INPUT);
   pinMode(flowPin, INPUT);
@@ -11,6 +11,9 @@ Dispenser::Dispenser(int btnPin, int flowPin, int pumpPin, int pulsesPerLiter, S
   _pulsesPerLiter = pulsesPerLiter;
   _pumpPin = pumpPin;
   _detName = detName;
+  //It's enough because detPrice is in cents.
+  if (_detPrice < 1)
+    SYSERR("_detPrice mustn't be less then 1 cent.");
   _detPrice = detPrice;
 
 }

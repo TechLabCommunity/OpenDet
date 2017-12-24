@@ -21,6 +21,7 @@
 #define Controllino_h
 
 #include <SPI.h>
+#include <Utility.h>
 
 /*
  * For backwards compatibility

@@ -12,7 +12,7 @@
 class Dispenser{
   public:
 
-    Dispenser(int, int, int, int, String, int);
+    Dispenser(int, int, int, unsigned int, String, unsigned int);
     int getBtnPin();
     int getFlowPin();
     int getPulses();
@@ -25,10 +25,10 @@ class Dispenser{
 
     int _btnPin;
     int _flowPin;
-    int _pulsesPerLiter;
+    unsigned int _pulsesPerLiter;
     int _pumpPin;
     String _detName;
-    int _detPrice;
+    unsigned int _detPrice; //cents not euro.
 };
 
 #endif
