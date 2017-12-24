@@ -7,7 +7,7 @@
 #ifndef DISPENSER_H
 #define DISPENSER_H
 
-#include <Arduino.h>
+#include <Controllino.h>
 
 class Dispenser{
   public:

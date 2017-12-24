@@ -1,5 +1,4 @@
 #include "Dispenser.h"
-#include "Arduino.h"
 
 Dispenser::Dispenser(int btnPin, int flowPin, int pumpPin, int pulsesPerLiter, String detName, int detPrice){
 
