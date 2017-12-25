@@ -8,27 +8,28 @@
 #define DISPENSER_H
 
 #include <Controllino.h>
+#include <MsTimer2.h>
+
+//defined in millilitres.
+enum FIXED_QUANTITY{
+  LT = 1000, HALFLT = 500, QTYLT = 250
+};
 
 class Dispenser{
-  public:
 
-    Dispenser(int, int, int, unsigned int, String, unsigned int);
-    int getBtnPin();
-    int getFlowPin();
+  public:
+    Dispenser(unsigned int, unsigned int, unsigned int, unsigned int, String, unsigned int);
     int getPulses();
-    int getPumpPin();
     String getDetName();
     int getPrice();
-    void dispense(double = 1);
+    void dispense(FIXED_QUANTITY);
+
+  protected:
+    void dispense(unsigned int = 1);
 
   private:
-
-    int _btnPin;
-    int _flowPin;
-    unsigned int _pulsesPerLiter;
-    int _pumpPin;
+    unsigned int _pulsesPerLiter, _btnPin, _flowPin, _pumpPin, _detPrice;
     String _detName;
-    unsigned int _detPrice; //cents not euro.
 };
 
 #endif
