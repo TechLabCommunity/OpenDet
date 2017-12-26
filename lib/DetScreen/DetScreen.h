@@ -2,7 +2,7 @@
 #define DETSCREEN_H
 
 #include <Global.h>
-#include <LiquidCrystal_I2C.h>
+#include "LiquidCrystal_I2C.h"
 
 class DetScreen : public LiquidCrystal_I2C{
 
