@@ -1,7 +1,4 @@
-#include <Arduino.h>
-#include <MsTimer2.h>
-
-#define DEBUG1
+#include <Global.h>
 
 #define POMPA   13 //D11 Controllino
 #define POMPA2  10

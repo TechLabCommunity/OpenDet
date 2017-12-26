@@ -1,6 +1,6 @@
 #include "Dispenser.h"
 
-Dispenser::Dispenser(unsigned int btnPin, unsigned int flowPin, unsigned int pumpPin, unsigned int pulsesPerLiter, String detName, unsigned int detPrice){
+Dispenser::Dispenser(uint btnPin, uint flowPin, uint pumpPin, uint pulsesPerLiter, String detName, uint detPrice){
   if (_pulsesPerLiter < 1)
     SYSERR("_pulsesPerLiter mustn't be less than 1.");
   //It's enough because detPrice is in cents.
@@ -17,7 +17,7 @@ Dispenser::Dispenser(unsigned int btnPin, unsigned int flowPin, unsigned int pum
   pinMode(pumpPin, OUTPUT);
 }
 
-int Dispenser::getPulses(){
+uint Dispenser::getPulses(){
   return _pulsesPerLiter;
 }
 
@@ -25,7 +25,7 @@ String Dispenser::getDetName(){
   return _detName;
 }
 
-int Dispenser::getPrice(){
+uint Dispenser::getPrice(){
   return _detPrice;
 }
 
@@ -34,7 +34,7 @@ void Dispenser::dispense(FIXED_QUANTITY qty){
 }
 
 //I can return detPrice, so I can subtract it to balance (ask Giusti)
-void Dispenser::dispense(unsigned int millilitres){
+void Dispenser::dispense(uint millilitres){
   if (millilitres < 1)
     SYSERR(_detName+": millilitres mustn't be 0.");
   int pulses = ((float)millilitres * _pulsesPerLiter) / 1000., counter = 0, prevState = 0, currState = 0;

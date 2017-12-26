@@ -7,6 +7,8 @@
 #ifndef CH926_H
 #define CH926_H
 
+#include <Global.h>
+
 #define ACTIVE_LOW 0
 #define ACTIVE_HIGH 1
 

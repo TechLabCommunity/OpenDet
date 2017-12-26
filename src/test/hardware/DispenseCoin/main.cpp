@@ -1,10 +1,5 @@
-#include <Arduino.h>
-#include "Controllino.h"
-#include "Dispenser.h"
-#include "CH926.h"
-#include "Utility.h"
-
-#define DEBUGGER
+#include <Global.h>
+#include <CH926.h>
 
 #define DISPENSER_N 6
 #define FLOW_PIN CONTROLLINO_A1
@@ -42,7 +37,7 @@ void loop() {
       disp1.dispense();
       Serial.println("Finish dispensing");
       Serial.println("Credit: " + (String)balance);
-      
+
     }
     else{
       Serial.println("Insufficient Credit");

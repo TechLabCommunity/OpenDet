@@ -7,8 +7,7 @@
 #ifndef DISPENSER_H
 #define DISPENSER_H
 
-#include <Controllino.h>
-#include <MsTimer2.h>
+#include <Global.h>
 
 //defined in millilitres.
 enum FIXED_QUANTITY{
@@ -18,17 +17,17 @@ enum FIXED_QUANTITY{
 class Dispenser{
 
   public:
-    Dispenser(unsigned int, unsigned int, unsigned int, unsigned int, String, unsigned int);
-    int getPulses();
+    Dispenser(uint, uint, uint, uint, String, uint);
+    uint getPulses();
     String getDetName();
-    int getPrice();
+    uint getPrice();
     void dispense(FIXED_QUANTITY);
 
   protected:
-    void dispense(unsigned int = 1);
+    void dispense(uint = 1);
 
   private:
-    unsigned int _pulsesPerLiter, _btnPin, _flowPin, _pumpPin, _detPrice;
+    uint _pulsesPerLiter, _btnPin, _flowPin, _pumpPin, _detPrice;
     String _detName;
 };
 

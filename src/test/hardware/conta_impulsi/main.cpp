@@ -1,4 +1,5 @@
-#include <Arduino.h>
+#include <Global.h>
+#include <Dispenser.h>
 
 #define FRQ_PIN 2
 //Counter max value, if counter reach this value it will be reset
