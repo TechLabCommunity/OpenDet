@@ -22,6 +22,8 @@ class DetScreen : public LiquidCrystal_I2C{
 
     void slideprint(const String&, uint);
 
+    void blinkprint(const String&, uint);
+
   public:
 
     DetScreen(uint, uint, uint);
@@ -29,6 +31,8 @@ class DetScreen : public LiquidCrystal_I2C{
     void start_system(const String& version);
 
     void main_screen(uint, uint);
+
+    void dispense_screen(const String&);
 
     void clear();
 

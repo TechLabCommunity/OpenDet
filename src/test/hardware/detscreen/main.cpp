@@ -2,8 +2,10 @@
 #include <DetScreen.h>
 
 DetScreen scr(0x27, 20, 4);
+unsigned long timer1 = 0;
+unsigned long timer2 = 0;
 uint coin = 0;
-unsigned long timer = 0;
+bool is_first = true;
 
 void setup() {
   DEBUGBEGIN(115200);
@@ -11,12 +13,23 @@ void setup() {
   scr.backlight();
   scr.start_system(VERSION_FIRMWARE);
   scr.clear();
+  timer1 = timer2 = millis();
 }
 
 void loop() {
-  scr.main_screen(0, coin);
-  if (millis() - timer >= 10000){
-    coin+=70;
-    timer = millis();
+  if (millis() - timer2 < 20000){
+    if (millis() - timer1 >= 5000){
+      coin+=70;
+      timer1 = millis();
+    }
+    scr.main_screen(0, coin);
+  }else{
+    if (is_first){
+      scr.clear();
+      is_first = false;
+    }
+
+    scr.dispense_screen("");
   }
+
 }

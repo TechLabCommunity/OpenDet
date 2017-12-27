@@ -59,6 +59,21 @@ void DetScreen::slideprint(const String& line, uint row){
   }
 }
 
+void DetScreen::blinkprint(const String& line, uint row){
+  if (millis() - timer >= 800){
+    timer=millis();
+    slider = !slider;
+    if (slider)
+      smartprint(line, row);
+    else{
+      setCursor(0, row);
+      for (uint i=0; i<cols; i++){
+        print(" ");
+      }
+    }
+  }
+}
+
 void DetScreen::main_screen(uint status, uint coin){
   switch(status){
     case 0:
@@ -70,8 +85,8 @@ void DetScreen::main_screen(uint status, uint coin){
   }
   setCursor(0, 3);
   if (coin > 0){
-    smartprint("Selezionare prodotto", 1);
-    print("Importo : ");
+    smartprint("SELEZIONARE PRODOTTO", 1);
+    print("Credito : ");
     String coins_string = cents_to_string(coin);
     setCursor(cols-coins_string.length(), 3);
     print(coins_string);
@@ -80,4 +95,9 @@ void DetScreen::main_screen(uint status, uint coin){
     for (uint i=0; i<cols; i++)
       print(" ");
   }
+}
+
+void DetScreen::dispense_screen(const String& detName){
+  smartprint("EROGAZIONE", 0);
+  blinkprint("ATTENDERE  PREGO", 2);
 }
