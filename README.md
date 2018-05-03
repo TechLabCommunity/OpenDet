@@ -17,3 +17,6 @@ TODO
 ### Who do I talk to? ###
 
 TODO
+
+# OpenDet
+Distributore di detersivi con Controllino
