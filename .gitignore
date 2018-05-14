@@ -1,4 +1,39 @@
+<<<<<<< HEAD
 .pioenvs
 .piolibdeps
 .clang_complete
 .gcc-flags.json
+=======
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+>>>>>>> 52907f4c4ba1e5d57d33da017e40b32c03ab34fa
