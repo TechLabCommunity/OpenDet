@@ -56,22 +56,22 @@ void loop() {
 
     // check all pins. Use adiacent pin to use a for loop
     if (digitalRead(BTN_PIN_1)) {
-      btn_pressed = 1;
+      btn_pressed = BTN_PIN_1;
       DEBUG("Button 1 pressed");
     } else if (digitalRead(BTN_PIN_2)) {
-      btn_pressed = 2;
+      btn_pressed = BTN_PIN_2;
       DEBUG("Button 2 pressed");
     } else if (digitalRead(BTN_PIN_3)) {
-      btn_pressed = 3;
+      btn_pressed = BTN_PIN_3;
       DEBUG("Button 3 pressed");
     } else if (digitalRead(BTN_PIN_4)) {
-      btn_pressed = 4;
+      btn_pressed = BTN_PIN_4;
       DEBUG("Button 4 pressed");
     } else if (digitalRead(BTN_PIN_5)) {
-      btn_pressed = 5;
+      btn_pressed = BTN_PIN_5;
       DEBUG("Button 5 pressed");
     } else if (digitalRead(BTN_PIN_6)) {
-      btn_pressed = 6;
+      btn_pressed = BTN_PIN_6;
       DEBUG("Button 6 pressed");
     }
 
@@ -106,101 +106,21 @@ void loop() {
   int curr_detPrice = 0;
   String curr_detName = "";
 
-  switch (btn_pressed) {
-    case 1:
-      curr_detPrice = DETPRICE_1;
-      curr_detName = disp_1.getDetName();
-
-      if (credit >= DETPRICE_1) {
-        DEBUG("Dispensing det 1");
-        credit -= DETPRICE_1;
-        digitalWrite(BTN_LED_1, HIGH);
-        lcd.clear();
-        lcd.dispense_screen("");
-        disp_1.dispense(1000);
-        // TODO display a SUCCESS message
-        btn_pressed = 0;
-      }
-      break;
-    case 2:
-      curr_detPrice = DETPRICE_2;
-      curr_detName = disp_2.getDetName();
-
-      if (credit >= DETPRICE_2) {
-        DEBUG("Dispensing det 2");
-        credit -= DETPRICE_2;
-        digitalWrite(BTN_LED_2, HIGH);
-        lcd.clear();
-        lcd.dispense_screen("");
-        disp_2.dispense(1000);
-        // TODO display a SUCCESS message
-        btn_pressed = 0;
-      }
-      break;
-    case 3:
-      curr_detPrice = DETPRICE_3;
-      curr_detName = disp_3.getDetName();
-
-      if (credit >= DETPRICE_3) {
-        DEBUG("Dispensing det 3");
-        credit -= DETPRICE_3;
-        digitalWrite(BTN_LED_3, HIGH);
-        lcd.clear();
-        lcd.dispense_screen("");
-        disp_3.dispense(1000);
-        // TODO display a SUCCESS message
-        btn_pressed = 0;
-      }
-      break;
-    case 4:
-      curr_detPrice = DETPRICE_4;
-      curr_detName = disp_4.getDetName();
-
-      if (credit >= DETPRICE_4) {
-        DEBUG("Dispensing det 4");
-        credit -= DETPRICE_4;
-        digitalWrite(BTN_LED_4, HIGH);
-        lcd.clear();
-        lcd.dispense_screen("");
-        disp_4.dispense(1000);
-        // TODO display a SUCCESS message
-        btn_pressed = 0;
-      }
-      break;
-    case 5:
-      curr_detPrice = DETPRICE_5;
-      curr_detName = disp_5.getDetName();
-
-      if (credit >= DETPRICE_5) {
-        DEBUG("Dispensing det 5");
-        credit -= DETPRICE_5;
-        digitalWrite(BTN_LED_5, HIGH);
-        lcd.clear();
-        lcd.dispense_screen("");
-
-        disp_5.dispense(1000);
-        // TODO display a SUCCESS message
-        btn_pressed = 0;
-      }
-      break;
-    case 6:
-      curr_detPrice = DETPRICE_6;
-      curr_detName = disp_6.getDetName();
-
-      if (credit >= DETPRICE_6) {
-        DEBUG("Dispensing det 6");
-        credit -= DETPRICE_6;
-        digitalWrite(BTN_LED_6, HIGH);
-        lcd.clear();
-        lcd.dispense_screen("");
-
-        disp_6.dispense(1000);
-        // TODO display a SUCCESS message
-        btn_pressed = 0;
-      }
-      break;
+  //Tramite questo metodo di classe è possibile ottenere un dispenser dando il pulsante premuto
+  Dispenser& dispChosen = Dispenser::getDispFromButton(btn_pressed);
+  curr_detPrice = dispChosen.getPrice();
+  curr_detName = dispChosen.getDetName();
+  //Da migliorare le condizioni e usare funzioni.
+  if (credit >= dispChosen.getPrice()) {
+    DEBUG("Dispensing det "+String(dispChosen.getNumberId()));
+    credit -= dispChosen.getPrice();
+    digitalWrite(dispChosen.getButton(), HIGH);
+    lcd.clear();
+    lcd.dispense_screen("");
+    dispChosen.dispense(1000);
+    // TODO display a SUCCESS message
+    btn_pressed = 0;
   }
-
   DEBUG("Finish dispensing\n");
   DEBUG("Credit: " + (String)credit + "\n");
   if (btn_pressed == 0) {
