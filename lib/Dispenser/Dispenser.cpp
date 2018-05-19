@@ -22,6 +22,8 @@ String Dispenser::getDetName() { return _detName; }
 
 uint Dispenser::getPrice() { return _detPrice; }
 
+uint Dispenser::getButton() { return _btnPin;}
+
 void Dispenser::dispense(FIXED_QUANTITY qty) { dispense((uint)qty); }
 
 void Dispenser::dispense(uint milliliters) {

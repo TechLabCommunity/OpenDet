@@ -19,6 +19,7 @@ class Dispenser {
   uint getPulses();
   String getDetName();
   uint getPrice();
+  uint getButton();
   void dispense(FIXED_QUANTITY);
   void dispense(uint = 1000);
 
