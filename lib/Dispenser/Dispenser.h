@@ -23,9 +23,9 @@ class Dispenser {
   void dispense(uint = 1000);
 
  protected:
- private:
   uint _pulsesPerLiter, _btnPin, _flowPin, _pumpPin, _detPrice;
   String _detName;
+
 };
 
 #endif
