@@ -31,6 +31,7 @@ class DetScreen : public LiquidCrystal_I2C {
   void dispense_screen(const String&);
   void dispenseEnd_screen();
   void creditLow_screen(uint, uint);
+  void bottleRemove_screen();
 
   void clear();
 };
