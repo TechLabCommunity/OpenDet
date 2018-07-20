@@ -1,5 +1,5 @@
-#include <Global.h>
 #include <Dispenser.h>
+#include <Global.h>
 
 #define DEBUGGER
 
@@ -12,10 +12,9 @@
 
 Dispenser disp1(BTN_PIN, FLOW_PIN, PUMP_PIN, PULSESXLITER, "Test", DETPRICE);
 
-
 void setup() {
-  //DEBUGBEGIN(9600);
-  //DEBUG("SETUP COMPLETE\n");
+  // DEBUGBEGIN(9600);
+  // DEBUG("SETUP COMPLETE\n");
   Serial.begin(9600);
   Serial.println("Setup Complete");
 }
@@ -26,16 +25,14 @@ int counter = 0;
 unsigned long startTime = 0;
 unsigned long finishTime = 0;
 
-
 void loop() {
-
-  if(digitalRead(BTN_PIN)){
+  if (digitalRead(BTN_PIN)) {
     startTime = millis();
     disp1.dispense(1);
     finishTime = millis();
     Serial.println("Start: " + (String)startTime);
     Serial.println("Finish: " + (String)finishTime);
-    Serial.println("Elapsed: " + (String)(finishTime-startTime));
+    Serial.println("Elapsed: " + (String)(finishTime - startTime));
     Serial.println("Finish");
   }
 
