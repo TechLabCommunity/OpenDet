@@ -37,7 +37,7 @@ void Dispenser::dispense(uint milliliters) {
   // error message in the home screen. Then update the error.log file
 
   // disable overflow interrupt
-  bitClear(TIMSK1, TOIE1);
+  // bitClear(TIMSK1, TOIE1);
 
   // count pulses
   while (counter <= pulses) {
