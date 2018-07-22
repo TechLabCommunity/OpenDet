@@ -226,9 +226,14 @@ void loop() {
     switch (errArr[btn_pressed]) {
       case 0:  // no error
         break;
-
+      case -3:  // -2 and -1 errors at the same time
+                // same as error -2, but when the -2 error is solved the error
+                // code change to -1 (until detergent is filled)
       case -2:  // error with pump or flow meter
+        // display error screen and return to main screen
+        lcd.clear();
         lcd.dispenserErr_screen();
+        delay(ERR_SCREEN_TIMEOUT);
         return;
         break;
 
@@ -252,15 +257,13 @@ void loop() {
       // warn user for bottle position and button press
       lcd.bottlePosition_screen();
 
-      // TODO check for millis() overflow
-      // check for button press for 10 seconds, if not pressed return to main
-      // screen
-      unsigned long endTime = millis() + 10000;
+      // endtime = now + 10 seconds
+      unsigned long endTime = millis() + DET_CONFIRM_TIMEOUT;
 
       bool btn_pressedTwice = false;
 
       // wait for btn pression
-      while (millis() < endTime) {
+      while (millis() - endTime <= 0) {
         if (digitalRead(btnArr[btn_pressed])) {
           btn_pressedTwice = true;
           break;
