@@ -42,8 +42,6 @@ void DetScreen::start_system(const String& version) {
   smartprint("TechLab  Community", 1);
   delay(1000);
   smartprint("Starting  system", 3);
-
-  delay(2000);
 }
 
 void DetScreen::slideprint(const String& line, uint row) {
@@ -139,11 +137,19 @@ void DetScreen::bottleRemove_screen() {
   smartprint("BOTTIGLIA", 2);
 }
 
-void DetScreen::dispenseError_screen(int error) {
-  switch (error) {
-    case -1:
-      smartprint("PRODOTTO", 1);
-      smartprint("ESAURITO", 2);
-      break;
-  }
+void DetScreen::unavailableProduct_screen() {
+  smartprint("PRODOTTO", 1);
+  smartprint("ESAURITO", 2);
+}
+
+void DetScreen::dispensingErr_screen() {
+  smartprint("ERRORE DURANTE", 0);
+  smartprint("L'EROGAZIONE", 1);
+  smartprint("CONTATTARE", 2);
+  smartprint("IL PROPRIETARIO", 3);
+}
+
+void DetScreen::dispenserErr_screen() {
+  smartprint("EROGATORE", 1);
+  smartprint("NON FUNZIONANTE", 2);
 }
