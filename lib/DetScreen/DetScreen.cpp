@@ -99,16 +99,18 @@ void DetScreen::main_screen(uint status, uint coin) {
   }
 }
 
-void DetScreen::dispense_screen(const String& detName) {
+void DetScreen::bottlePosition_screen() {
   // warning message for bottle positioning
   clear();
-  smartprint(detName, 0);
-  smartprint("POSIZIONARE", 2);
-  smartprint("BOTTIGLIA", 3);
-  delay(5000);
+  smartprint("POSIZIONARE", 0);
+  smartprint("BOTTIGLIA", 1);
+  slideprint("Premere nuovamente il pulsante per iniziare l'erogazione", 3);
+}
+
+void DetScreen::dispense_screen(const String& detName) {
+  // TODO if possible insert a progress bar
 
   // info message for dispensing
-  // TODO if possible insert a progress bar
   clear();
   smartprint("EROGAZIONE", 0);
   smartprint(detName, 1);
@@ -118,13 +120,30 @@ void DetScreen::dispense_screen(const String& detName) {
 void DetScreen::dispenseEnd_screen() { smartprint("FINE EROGAZIONE", 1); }
 
 void DetScreen::creditLow_screen(uint credit, uint detPrice) {
+  /*
   smartprint("Credito", 0);
   smartprint("Insufficiente", 1);
   smartprint("Prezzo: " + (String)detPrice, 2);
   smartprint("Credito: " + (String)credit, 3);
+  /**/
+
+  // TODO remove this shit ;)
+  smartprint("Credito", 0);
+  smartprint("Insufficiente", 1);
+
+  slideprint("SE SEI SENZA SOLDI VAI DA UN'ALTRA PARTE", 3);
 }
 
 void DetScreen::bottleRemove_screen() {
   smartprint("RIMUOVERE", 1);
   smartprint("BOTTIGLIA", 2);
+}
+
+void DetScreen::dispenseError_screen(int error) {
+  switch (error) {
+    case -1:
+      smartprint("PRODOTTO", 1);
+      smartprint("ESAURITO", 2);
+      break;
+  }
 }

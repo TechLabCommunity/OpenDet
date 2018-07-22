@@ -21,6 +21,7 @@ class DetScreen : public LiquidCrystal_I2C {
 
  public:
   DetScreen(uint, uint, uint);
+  void clear();
 
   void smartprint(const String&, uint);
 
@@ -28,12 +29,12 @@ class DetScreen : public LiquidCrystal_I2C {
 
   void main_screen(uint, uint);
 
+  void bottlePosition_screen();
   void dispense_screen(const String&);
   void dispenseEnd_screen();
   void creditLow_screen(uint, uint);
   void bottleRemove_screen();
-
-  void clear();
+  void dispenseError_screen(int);
 };
 
 #endif
