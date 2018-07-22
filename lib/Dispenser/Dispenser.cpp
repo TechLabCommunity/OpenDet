@@ -40,6 +40,13 @@ uint Dispenser::getPrice() { return _detPrice; }
 
 int Dispenser::dispense(FIXED_QUANTITY qty) { return dispense((uint)qty); }
 
+/**
+ * @brief dispense a certain amount of milliliters
+ *
+ * @param milliliters milliliters to dispense
+ * @return   0 in case of success
+ *          -2 in case of pump or flowmeter error
+ */
 int Dispenser::dispense(uint milliliters) {
   // check valid millimiters input
   if (milliliters < 1) SYSERR(_detName + ": millilitres mustn't be 0.");
@@ -78,5 +85,5 @@ int Dispenser::dispense(uint milliliters) {
   // turn off pump
   digitalWrite(_pumpPin, LOW);
 
-  return (flowError_flag) ? (-1) : (0);
+  return (flowError_flag) ? (-2) : (0);
 }
