@@ -2,6 +2,10 @@
 
 #define DISPENSER_N 6
 
+// Maximum quantity for detergents [liters] and bottle [pieces]
+#define DET_CNTMAX 24
+#define BOTTLE_CNTMAX 24
+
 #define COIN_SIGPIN CONTROLLINO_IN0
 #define COIN_PWRPIN CONTROLLINO_R15
 
@@ -21,8 +25,6 @@
 #define DETPRICE_6 200  // cents of euro
 
 #define BOTTLEPRICE 10
-// timeout for bottle removing in seconds
-#define BOTTLE_TIMEOUT 10
 
 #define FLOW_PIN_1 CONTROLLINO_A0
 #define FLOW_PIN_2 CONTROLLINO_A1
@@ -52,6 +54,8 @@
 #define BOTTLE_ECHO CONTROLLINO_D19
 // minimum distance for bottle presence, in cm
 #define BOTTLE_DISTANCE 25
+// timeout for bottle removing in seconds
+#define BOTTLE_TIMEOUT 10
 
 #define BTN_LED_1 CONTROLLINO_D0
 #define BTN_LED_2 CONTROLLINO_D1
@@ -60,3 +64,9 @@
 #define BTN_LED_5 CONTROLLINO_D4
 #define BTN_LED_6 CONTROLLINO_D5
 #define BTN_LED_BOTTLE CONTROLLINO_D6
+
+// screen's timeouts in ms
+#define SCREEN_TIMEOUT 3000
+#define START_SCREEN_TIMEOUT 2000
+#define ERR_SCREEN_TIMEOUT 5000
+#define LOWCREDIT_SCREEN_TIMEOUT 3000
