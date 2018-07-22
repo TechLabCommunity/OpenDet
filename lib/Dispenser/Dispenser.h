@@ -9,6 +9,7 @@
 #define DISPENSER_H
 
 #include <Global.h>
+#include <MsTimer2.h>
 
 // defined in millilitres.
 enum FIXED_QUANTITY { LT = 1000, HALFLT = 500, QTYLT = 250 };
@@ -19,8 +20,8 @@ class Dispenser {
   uint getPulses();
   String getDetName();
   uint getPrice();
-  void dispense(FIXED_QUANTITY);
-  void dispense(uint = 1000);
+  int dispense(FIXED_QUANTITY);
+  int dispense(uint = 1000);
 
  protected:
  private:
