@@ -4,10 +4,8 @@
 // LIBRARY
 
 // if no pulse arrive from flow meters within this time an error is raised
-// TODO about 30 s to dispense pump 5, see pulse for this pump to see time for a
-// single pulse
-// pump 6 35s
-#define FLOW_TIMER_MS 100
+// this time correspond more or less to 10 pulses.
+#define FLOW_TIMER_MS 300
 
 bool flowError_flag = false;
 
@@ -57,13 +55,11 @@ int Dispenser::dispense(uint milliliters) {
   // turn on pump
   digitalWrite(_pumpPin, HIGH);
 
-  // TODO start a timer and in case of overflow turn off pump and display
-  // error message in the home screen. Then update the error.log file
-
   // start timer to check the dispensing process
   MsTimer2::start();
 
   // count pulses
+  // if error flag is raised during dispensing terminate immediately
   while (counter <= pulses && !flowError_flag) {
     currState = digitalRead(_flowPin);
 
