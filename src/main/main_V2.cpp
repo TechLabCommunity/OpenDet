@@ -27,13 +27,17 @@ Dispenser disp_5(BTN_PIN_5, FLOW_PIN_5, PUMP_PIN_5, PULSESXLITER_5, "Test_5",
 Dispenser disp_6(BTN_PIN_6, FLOW_PIN_6, PUMP_PIN_6, PULSESXLITER_6, "Test_6",
                  DETPRICE_6);
 
+// array for dispenser object
 Dispenser* dispArr[DISPENSER_N] = {&disp_1, &disp_2, &disp_3,
                                    &disp_4, &disp_5, &disp_6};
+// array for buttons pins
 int btnArr[DISPENSER_N + 1] = {BTN_PIN_1, BTN_PIN_2, BTN_PIN_3,     BTN_PIN_4,
                                BTN_PIN_5, BTN_PIN_6, BTN_PIN_BOTTLE};
-
+// array for leds pins
 int ledArr[DISPENSER_N + 1] = {BTN_LED_1, BTN_LED_2, BTN_LED_3,     BTN_LED_4,
                                BTN_LED_5, BTN_LED_6, BTN_LED_BOTTLE};
+// array to store error flags for dispensers
+int dispErr[DISPENSER_N] = {0};
 
 CH926 coin(COIN_SIGPIN, COIN_PWRPIN, NO, ACTIVE_HIGH);
 uint32_t CH926::_counter = 0;
@@ -68,6 +72,7 @@ void setup() {
 }
 
 void loop() {
+  // turn on all button's leds
   for (int i = 0; i < DISPENSER_N + 1; i++) {
     digitalWrite(ledArr[i], HIGH);
   }
@@ -77,6 +82,7 @@ void loop() {
 
   lcd.clear();
 
+  // check for button pression
   while (btn_pressed == -1) {
     // update lcd with current credit
     credit_new = coin.counter() * 10;
@@ -101,16 +107,18 @@ void loop() {
   // disable coin acceptor
   coin.stopInterrupt();
 
+  // print current credit
   DEBUG("Credit: " + (String)credit + "euro\n");
 
-  // turn off all button's
+  // turn off all button's leds
   for (int i = 0; i < DISPENSER_N + 1; i++) {
-    digitalWrite(btnArr[i], LOW);
+    digitalWrite(ledArr[i], LOW);
   }
   // light up pressed button
   digitalWrite(ledArr[btn_pressed], HIGH);
 
-  // bottle pin pressed
+  // BOTTLE DISPENSING
+
   if (btn_pressed == DISPENSER_N) {
     DEBUG("Bottle pin pressed\n");
 
@@ -179,9 +187,21 @@ void loop() {
       lcd.creditLow_screen(credit, BOTTLEPRICE);
     }
   }
-  // detergent pin pressed
+
+  // DETERGENT DISPENSING
+
   else {
     DEBUG("Dispense pin pressed\n");
+
+    // check if this dispenser is marked with an error
+    if (dispErr[btn_pressed] != 0) {
+      // display error message
+      lcd.dispenseError_screen(dispErr[btn_pressed]);
+      delay(3000);
+
+      btn_pressed = -1;
+      return;
+    }
 
     // get selected detergent's name and price
     uint curr_detPrice = dispArr[btn_pressed]->getPrice();
@@ -191,22 +211,55 @@ void loop() {
     if (credit >= curr_detPrice) {
       DEBUG("Credit ok!\n");
 
+      // warn user for bottle position and button press
+      lcd.bottlePosition_screen();
+
+      // TODO check for millis() overflow
+      // check for button press for 10 seconds, if not pressed return to main
+      // screen
+      unsigned long endTime = millis() + 10000;
+
+      bool btn_pressedTwice = false;
+
+      // wait for btn pression
+      while (millis() < endTime) {
+        if (digitalRead(btnArr[btn_pressed])) {
+          btn_pressedTwice = true;
+          break;
+        }
+      }
+
+      // if btn not pressed reset btn_pressed and return to main
+      if (!btn_pressedTwice) {
+        btn_pressed = -1;
+        return;
+      }
+
       credit -= curr_detPrice;
 
       lcd.dispense_screen(curr_detName);
 
       DEBUG("Dispense detergent...\n");
 
+      // TODO insert small delay before dispensing????
+
       // TODO maybe flash led during dispensing
       // use ticker library https://github.com/sstaub/Ticker
-      dispArr[btn_pressed]->dispense(LT);
+      // return 0 if all goes ok, negative number otherwise
+      int dispRet = dispArr[btn_pressed]->dispense(LT);
+
+      // TODO
+      // check return value for dispense(). -1 -> error
+      // handle error -> mark this pump as UNAVAILABLE and display appropriate
+      // error if selected. This mark has to be saved in the sd and reset
+      // manually
+      dispErr[btn_pressed] = dispRet;
 
       // dispensing end
       DEBUG("Detergent dispensed!\n");
       lcd.clear();
       lcd.dispenseEnd_screen();
       delay(2000);
-
     }
     // credit low for selected detergent
     else {
@@ -234,7 +287,7 @@ void loop() {
 }
 
 /**
- * @brief Measure distance with SFR=% ultrasonic sensor
+ * @brief Measure distance with SFR05 ultrasonic sensor
  *
  * @param trigPin trigger pin
  * @param echoPin echo pin
