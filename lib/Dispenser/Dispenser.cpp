@@ -81,5 +81,11 @@ int Dispenser::dispense(uint milliliters) {
   // turn off pump
   digitalWrite(_pumpPin, LOW);
 
-  return (flowError_flag) ? (-2) : (0);
+  if (flowError_flag) {
+    // reset error flag and return error code
+    flowError_flag = false;
+    return -2;
+  } else {
+    return 0;
+  }
 }

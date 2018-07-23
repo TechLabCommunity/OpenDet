@@ -9,7 +9,6 @@
 #define DISPENSER_H
 
 #include <Global.h>
-#include <MsTimer2.h>
 
 // defined in millilitres.
 enum FIXED_QUANTITY { LT = 1000, HALFLT = 500, QTYLT = 250 };
