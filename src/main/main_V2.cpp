@@ -10,8 +10,15 @@
  * insertion ending. For exampe after 3 times the pulse time of the coin
  * acceptor we update the credit
  */
-// the error array must be saved in the SD and uploaded in the setup. To reset
-// the errors implement a specific procedure
+/* The error array must be saved in the SD and uploaded in the setup. To reset
+ * the errors implement a specific procedure
+ */
+/* Implement log and error files in the sd. In the log file append all events,
+ * in the error file append all errors
+ */
+/* Implement routine for RTC update
+ *
+ */
 
 int SRF05_measureDistance(uint8_t, uint8_t);
 
@@ -223,6 +230,7 @@ void loop() {
     DEBUG("Dispense pin pressed\n");
 
     // error check
+    DEBUG("Error num: " + (String)errArr[btn_pressed] + " (0 = no errors)");
     switch (errArr[btn_pressed]) {
       case 0:  // no error
         break;
@@ -231,6 +239,7 @@ void loop() {
                 // code change to -1 (until detergent is filled)
       case -2:  // error with pump or flow meter
         // display error screen and return to main screen
+        btn_pressed = -1;
         lcd.clear();
         lcd.dispenserErr_screen();
         delay(ERR_SCREEN_TIMEOUT);
@@ -239,6 +248,7 @@ void loop() {
 
       case -1:  // no more detergent
         // display unavailable product screen and return to main screen
+        btn_pressed = -1;
         lcd.clear();
         lcd.unavailableProduct_screen();
         delay(ERR_SCREEN_TIMEOUT);
@@ -255,23 +265,31 @@ void loop() {
       DEBUG("Credit ok!\n");
 
       // warn user for bottle position and button press
-      lcd.bottlePosition_screen();
-
       // endtime = now + 10 seconds
       unsigned long endTime = millis() + DET_CONFIRM_TIMEOUT;
 
       bool btn_pressedTwice = false;
+      // add small delay for the user to release the button
+      // TODO better display another screen, like this the main screen is still
+      // for the amount of the delay
+      delay(1000);
+      lcd.clear();
 
       // wait for btn pression
-      while (millis() - endTime <= 0) {
+      while ((long)(millis() - endTime) <= 0) {
+        // TODO change the screen or wait longer, the text doesn't show all up
+        lcd.bottlePosition_screen();
+
         if (digitalRead(btnArr[btn_pressed])) {
           btn_pressedTwice = true;
+          DEBUG("Button pressed twice!");
           break;
         }
       }
 
       // if btn not pressed reset btn_pressed and return to main
       if (!btn_pressedTwice) {
+        DEBUG("Button not pressed twice");
         btn_pressed = -1;
         return;
       }
@@ -295,6 +313,7 @@ void loop() {
       // error if selected. This mark has to be saved in the sd and reset
       // manually
       errArr[btn_pressed] = dispRet;
+      DEBUG("Dispense returned: " + (String)dispRet + " (0 = no err)");
 
       // NOTICE a liter is subtracted even if there is an error during the
       // dispensig. Otherwise if some detergent is dispensed and then the error
@@ -303,14 +322,8 @@ void loop() {
       // subtract a liter from the detergent counter
       cntArr[btn_pressed]--;
 
-      // NOTICE credit is subtracted anyway, so the customer has to go to the
-      // manager to ask for a refound
-      // display error message
-      if (dispRet == -2) {
-        lcd.dispensingErr_screen();
-        delay(ERR_SCREEN_TIMEOUT);
-        return;
-      }
+      DEBUG("Counter " + (String)btn_pressed + " :" +
+            (String)cntArr[btn_pressed]);
 
       // TODO if dispense error occurr when the detergent is finished the
       // prioriry goes to the dispense error, so after problem is resolved the
@@ -320,12 +333,24 @@ void loop() {
 
       // detergent finished
       if (cntArr[btn_pressed] == 0) {
+        DEBUG("Detergent finished!");
         // detergent empty + dispense error
         if (dispRet == -2) {
           errArr[btn_pressed] = -3;
         } else {
           errArr[btn_pressed] = -1;
         }
+      }
+
+      // NOTICE credit is subtracted anyway, so the customer has to go to the
+      // manager to ask for a refound
+      // display error message
+      if (dispRet == -2) {
+        btn_pressed = -1;
+        lcd.clear();
+        lcd.dispensingErr_screen();
+        delay(ERR_SCREEN_TIMEOUT);
+        return;
       }
 
       // dispensing end
