@@ -46,7 +46,7 @@ void DetScreen::start_system(const String& version) {
 
 void DetScreen::slideprint(const String& line, uint row) {
   String textSlide1toPrint = line.substring(0, cols);
-  if (millis() - timer >= 400) {
+  if (millis() - timer >= 300) {
     timer = millis();
     slider++;
     textSlide1toPrint = line.substring(slider, slider + cols);
@@ -99,10 +99,9 @@ void DetScreen::main_screen(uint status, uint coin) {
 
 void DetScreen::bottlePosition_screen() {
   // warning message for bottle positioning
-  clear();
   smartprint("POSIZIONARE", 0);
   smartprint("BOTTIGLIA", 1);
-  slideprint("Premere nuovamente il pulsante per iniziare l'erogazione", 3);
+  slideprint("   Premere nuovamente il pulsante per iniziare l'erogazione", 3);
 }
 
 void DetScreen::dispense_screen(const String& detName) {
@@ -123,13 +122,11 @@ void DetScreen::creditLow_screen(uint credit, uint detPrice) {
   smartprint("Insufficiente", 1);
   smartprint("Prezzo: " + (String)detPrice, 2);
   smartprint("Credito: " + (String)credit, 3);
-  /**/
+  */
 
   // TODO remove this shit ;)
   smartprint("Credito", 0);
   smartprint("Insufficiente", 1);
-
-  slideprint("SE SEI SENZA SOLDI VAI DA UN'ALTRA PARTE", 3);
 }
 
 void DetScreen::bottleRemove_screen() {
