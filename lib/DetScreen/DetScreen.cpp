@@ -101,7 +101,8 @@ void DetScreen::bottlePosition_screen() {
   // warning message for bottle positioning
   smartprint("POSIZIONARE", 0);
   smartprint("BOTTIGLIA", 1);
-  slideprint("   Premere nuovamente il pulsante per iniziare l'erogazione", 3);
+  smartprint("Premere  per", 2);
+  smartprint("iniziare", 3);
 }
 
 void DetScreen::dispense_screen(const String& detName) {
@@ -142,8 +143,6 @@ void DetScreen::unavailableProduct_screen() {
 void DetScreen::dispensingErr_screen() {
   smartprint("ERRORE DURANTE", 0);
   smartprint("L'EROGAZIONE", 1);
-  smartprint("CONTATTARE", 2);
-  smartprint("IL PROPRIETARIO", 3);
 }
 
 void DetScreen::dispenserErr_screen() {
