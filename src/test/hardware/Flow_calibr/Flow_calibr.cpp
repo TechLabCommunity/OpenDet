@@ -1,7 +1,7 @@
 #include <DetScreen.h>
 #include <Dispenser.h>
 #include <Global.h>
-#include "config.h"
+#include <config.h>
 
 int btnArr[DISPENSER_N] = {BTN_PIN_1, BTN_PIN_2, BTN_PIN_3,
                            BTN_PIN_4, BTN_PIN_5, BTN_PIN_6};
