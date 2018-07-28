@@ -24,17 +24,23 @@ int SRF05_measureDistance(uint8_t, uint8_t);
 
 // ATTENZIONE: nome prodotto deve avere meno di 20 caratteri
 Dispenser disp_1(BTN_PIN_1, FLOW_PIN_1, PUMP_PIN_1, PULSESXLITER_1, "Test_1",
-                 DETPRICE_1);
+                 DETPRICE_1, DET_CNTMAX,
+                 10000.0 / PULSESXLITER_1 * TIMEXLITER_1);
 Dispenser disp_2(BTN_PIN_2, FLOW_PIN_2, PUMP_PIN_2, PULSESXLITER_2, "Test_2",
-                 DETPRICE_2);
+                 DETPRICE_2, DET_CNTMAX,
+                 10000.0 / PULSESXLITER_2 * TIMEXLITER_2);
 Dispenser disp_3(BTN_PIN_3, FLOW_PIN_3, PUMP_PIN_3, PULSESXLITER_3, "Test_3",
-                 DETPRICE_3);
+                 DETPRICE_3, DET_CNTMAX,
+                 10000.0 / PULSESXLITER_3 * TIMEXLITER_3);
 Dispenser disp_4(BTN_PIN_4, FLOW_PIN_4, PUMP_PIN_4, PULSESXLITER_4, "Test_4",
-                 DETPRICE_4);
+                 DETPRICE_4, DET_CNTMAX,
+                 10000.0 / PULSESXLITER_4 * TIMEXLITER_4);
 Dispenser disp_5(BTN_PIN_5, FLOW_PIN_5, PUMP_PIN_5, PULSESXLITER_5, "Test_5",
-                 DETPRICE_5);
+                 DETPRICE_5, DET_CNTMAX,
+                 10000.0 / PULSESXLITER_5 * TIMEXLITER_5);
 Dispenser disp_6(BTN_PIN_6, FLOW_PIN_6, PUMP_PIN_6, PULSESXLITER_6, "Test_6",
-                 DETPRICE_6);
+                 DETPRICE_6, DET_CNTMAX,
+                 10000.0 / PULSESXLITER_6 * TIMEXLITER_6);
 
 // array for dispenser object
 Dispenser* dispArr[DISPENSER_N] = {&disp_1, &disp_2, &disp_3,
@@ -45,12 +51,12 @@ int btnArr[DISPENSER_N + 1] = {BTN_PIN_1, BTN_PIN_2, BTN_PIN_3,     BTN_PIN_4,
 // array for leds pins
 int ledArr[DISPENSER_N + 1] = {BTN_LED_1, BTN_LED_2, BTN_LED_3,     BTN_LED_4,
                                BTN_LED_5, BTN_LED_6, BTN_LED_BOTTLE};
-// array to store error flags for dispensers
-int errArr[DISPENSER_N + 1] = {0};
-// array to store max quantity for detergents and bottle. Whent the counter
-// arrives to 0 the product is marked as UNAVAILABLE
-int cntArr[DISPENSER_N + 1] = {DET_CNTMAX, DET_CNTMAX, DET_CNTMAX,   DET_CNTMAX,
-                               DET_CNTMAX, DET_CNTMAX, BOTTLE_CNTMAX};
+
+// array for status: 0=OK, -1=EMPTY, -3=ERROR, -4=EMPTY+ERROR
+int statusArr[DISPENSER_N + 1] = {0};
+
+int bottErr = 0;
+int bottCnt = BOTTLE_CNTMAX;
 
 CH926 coin(COIN_SIGPIN, COIN_PWRPIN, NO, ACTIVE_HIGH);
 uint32_t CH926::_counter = 0;
@@ -86,7 +92,12 @@ void setup() {
 void loop() {
   // turn on all button's leds
   for (int i = 0; i < DISPENSER_N + 1; i++) {
-    digitalWrite(ledArr[i], HIGH);
+    // light up only available pump's led
+    if (statusArr[i] == 0) {
+      digitalWrite(ledArr[i], HIGH);
+    } else {
+      digitalWrite(ledArr[i], LOW);
+    }
   }
 
   // enable coin acceptor
@@ -102,7 +113,6 @@ void loop() {
     lcd.main_screen(0, credit + credit_new);
 
     // check all pins
-
     for (int i = 0; i < DISPENSER_N + 1; i++) {
       if (digitalRead(btnArr[i])) {
         DEBUG("Button " + (String)(i + 1) + " pressed\n");
@@ -130,12 +140,11 @@ void loop() {
   digitalWrite(ledArr[btn_pressed], HIGH);
 
   // BOTTLE DISPENSING
-
   if (btn_pressed == DISPENSER_N) {
     DEBUG("Bottle pin pressed\n");
 
     // error check
-    switch (errArr[btn_pressed]) {
+    switch (bottErr) {
       case 0:  // no error
         break;
 
@@ -144,6 +153,7 @@ void loop() {
         lcd.clear();
         lcd.unavailableProduct_screen();
         delay(ERR_SCREEN_TIMEOUT);
+        btn_pressed = -1;
         return;
         break;
     }
@@ -207,11 +217,11 @@ void loop() {
       DEBUG("Bottle dispensed!\n");
 
       // update bottle counter
-      cntArr[btn_pressed]--;
+      bottCnt--;
 
       // check if there are no more bottles
-      if (cntArr[btn_pressed] == 0) {
-        errArr[btn_pressed] = -1;
+      if (bottCnt == 0) {
+        bottErr = -1;
       }
 
     }
@@ -225,34 +235,38 @@ void loop() {
   }
 
   // DETERGENT DISPENSING
-
   else {
     DEBUG("Dispense pin pressed\n");
 
-    // error check
-    DEBUG("Error num: " + (String)errArr[btn_pressed] + " (0 = no errors)");
-    switch (errArr[btn_pressed]) {
-      case 0:  // no error
+    switch (statusArr[btn_pressed]) {
+      case OK:  // no error
         break;
-      case -3:  // -2 and -1 errors at the same time
-                // same as error -2, but when the -2 error is solved the error
-                // code change to -1 (until detergent is filled)
-      case -2:  // error with pump or flow meter
+      case PUMP_AND_EMPTY:  // -2 and -1 errors at the same time
+                            // same as error -2, but when the -2 error is
+                            // solved the error code change to -1 (until
+                            // detergent is filled)
+      case PUMP_ERR:        // error with pump or flow meter
         // display error screen and return to main screen
-        btn_pressed = -1;
         lcd.clear();
         lcd.dispenserErr_screen();
         delay(ERR_SCREEN_TIMEOUT);
+        btn_pressed = -1;
         return;
         break;
 
-      case -1:  // no more detergent
+      case TANK_EMPTY:  // no more detergent
         // display unavailable product screen and return to main screen
-        btn_pressed = -1;
         lcd.clear();
         lcd.unavailableProduct_screen();
         delay(ERR_SCREEN_TIMEOUT);
+        btn_pressed = -1;
         return;
+        break;
+
+      case QTY_LOW:  // quantity to dispense > available quantity
+        // this case must not appear ever, because we dispense only one liter
+        // at time and the max quantity is integer number of liters
+        // TODO handle this case just in case
         break;
     }
 
@@ -272,13 +286,13 @@ void loop() {
       // add small delay for the user to release the button
       // TODO better display another screen, like this the main screen is still
       // for the amount of the delay
-      delay(1000);
       lcd.clear();
+      lcd.bottlePosition_screen();
+      delay(800);
 
       // wait for btn pression
       while ((long)(millis() - endTime) <= 0) {
         // TODO change the screen or wait longer, the text doesn't show all up
-        lcd.bottlePosition_screen();
 
         if (digitalRead(btnArr[btn_pressed])) {
           btn_pressedTwice = true;
@@ -307,49 +321,17 @@ void loop() {
       // return 0 if all goes ok, negative number otherwise
       int dispRet = dispArr[btn_pressed]->dispense(LT);
 
-      // TODO
-      // check return value for dispense(). -1 -> error
-      // handle error -> mark this pump as UNAVAILABLE and display appropriate
-      // error if selected. This mark has to be saved in the sd and reset
-      // manually
-      errArr[btn_pressed] = dispRet;
+      // update status array
+      statusArr[btn_pressed] = dispRet;
+
       DEBUG("Dispense returned: " + (String)dispRet + " (0 = no err)");
 
-      // NOTICE a liter is subtracted even if there is an error during the
-      // dispensig. Otherwise if some detergent is dispensed and then the error
-      // is raised I would not count the dispensed detergent
-
-      // subtract a liter from the detergent counter
-      cntArr[btn_pressed]--;
-
-      DEBUG("Counter " + (String)btn_pressed + " :" +
-            (String)cntArr[btn_pressed]);
-
-      // TODO if dispense error occurr when the detergent is finished the
-      // prioriry goes to the dispense error, so after problem is resolved the
-      // empty detergent error is not raised. Do something to do that
-      // maybe add an error code to mark this situation, and after the dispense
-      // error is reset change the error code to the empty detergent error
-
-      // detergent finished
-      if (cntArr[btn_pressed] == 0) {
-        DEBUG("Detergent finished!");
-        // detergent empty + dispense error
-        if (dispRet == -2) {
-          errArr[btn_pressed] = -3;
-        } else {
-          errArr[btn_pressed] = -1;
-        }
-      }
-
-      // NOTICE credit is subtracted anyway, so the customer has to go to the
-      // manager to ask for a refound
-      // display error message
-      if (dispRet == -2) {
-        btn_pressed = -1;
+      // error during dispensing, display a message and return to main
+      if (dispRet != OK || dispRet != TANK_EMPTY) {
         lcd.clear();
         lcd.dispensingErr_screen();
         delay(ERR_SCREEN_TIMEOUT);
+        btn_pressed = -1;
         return;
       }
 
@@ -358,26 +340,14 @@ void loop() {
       lcd.clear();
       lcd.dispenseEnd_screen();
       delay(SCREEN_TIMEOUT);
+
     }
     // credit low for selected detergent
     else {
       DEBUG("Credit low: " + (String)credit + "euro\n");
-
-      // credit 0, display det price only
-      if (credit == 0) {
-        DEBUG("Credit 0\n");
-        lcd.clear();
-        lcd.smartprint(curr_detName, 1);
-        lcd.smartprint("Prezzo: " + (String)curr_detPrice, 2);
-        delay(LOWCREDIT_SCREEN_TIMEOUT);
-      }
-      // credit > 0, display a "credit low" message
-      else {
-        DEBUG("Credit > 0\n");
-        lcd.clear();
-        lcd.creditLow_screen(credit, curr_detPrice);
-        delay(LOWCREDIT_SCREEN_TIMEOUT);
-      }
+      lcd.clear();
+      lcd.creditLow_screen(credit, curr_detPrice);
+      delay(LOWCREDIT_SCREEN_TIMEOUT);
     }
   }
 
