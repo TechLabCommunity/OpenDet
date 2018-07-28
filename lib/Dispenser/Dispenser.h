@@ -1,5 +1,5 @@
 /*
- * FlowSensor.h - Library for XXXX flow sensors
+ * Dispenser.h - Library for pump dispenser with flow sensors
  * Created by Michele Brunelli on 12 dec 2017
  * Ask the creator if you want to use this library, email me at
  * brunellim94@gmail.com
@@ -13,18 +13,33 @@
 // defined in millilitres.
 enum FIXED_QUANTITY { LT = 1000, HALFLT = 500, QTYLT = 250 };
 
+enum DISP_ERR {
+  OK = 0,
+  TANK_EMPTY = -1,
+  QTY_LOW = -2,
+  PUMP_ERR = -3,
+  PUMP_AND_EMPTY = -4
+};
+
 class Dispenser {
  public:
-  Dispenser(uint, uint, uint, uint, String, uint);
+  Dispenser(uint, uint, uint, uint, String, uint, uint, uint);
   uint getPulses();
+  void setPulses(uint);
   String getDetName();
+  void setName(String);
   uint getPrice();
-  int dispense(FIXED_QUANTITY);
-  int dispense(uint = 1000);
+  void setPrice(uint);
+  DISP_ERR dispense(FIXED_QUANTITY);
+  DISP_ERR dispense(uint = 1000);
+  DISP_ERR pumpErr_reset();
+  DISP_ERR tankFilled();
 
  protected:
  private:
-  uint _pulsesPerLiter, _btnPin, _flowPin, _pumpPin, _detPrice;
+  uint _pulsesPerLiter, _btnPin, _flowPin, _pumpPin, _detPrice, _detCnt,
+      _flowTimeout;
+  DISP_ERR _error;
   String _detName;
 };
 
