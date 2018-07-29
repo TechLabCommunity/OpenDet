@@ -23,6 +23,8 @@ Dispenser::Dispenser(uint btnPin, uint flowPin, uint pumpPin,
   _detName = detName;
   // save quantity in milliliters
   _detCnt = tankCap * 1000;
+  _detCntMax = _detCnt;
+
   // 0 = no error
   _error = OK;
   _flowTimeout = flowTimeout;
@@ -112,11 +114,18 @@ DISP_ERR Dispenser::dispense(uint milliliters) {
 }
 
 DISP_ERR Dispenser::pumpErr_reset() {
-  _error = (DISP_ERR)(_error - PUMP_ERR);
+  if (_error == PUMP_ERR || _error == PUMP_AND_EMPTY) {
+    _error = (DISP_ERR)(_error - PUMP_ERR);
+  }
   return _error;
 }
 
-DISP_ERR Dispenser::tankFilled() {
-  _error = (DISP_ERR)(_error - TANK_EMPTY);
+DISP_ERR Dispenser::fillTank() {
+  _detCnt = _detCntMax;
+
+  if (_error == TANK_EMPTY || _error == PUMP_AND_EMPTY) {
+    _error = (DISP_ERR)(_error - TANK_EMPTY);
+  }
+
   return _error;
 }

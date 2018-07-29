@@ -33,12 +33,12 @@ class Dispenser {
   DISP_ERR dispense(FIXED_QUANTITY);
   DISP_ERR dispense(uint = 1000);
   DISP_ERR pumpErr_reset();
-  DISP_ERR tankFilled();
+  DISP_ERR fillTank();
 
  protected:
  private:
   uint _pulsesPerLiter, _btnPin, _flowPin, _pumpPin, _detPrice, _detCnt,
-      _flowTimeout;
+      _detCntMax, _flowTimeout;
   DISP_ERR _error;
   String _detName;
 };
