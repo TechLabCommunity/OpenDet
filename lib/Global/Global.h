@@ -24,7 +24,7 @@
 #include <Print.h>
 #include <SPI.h>
 #include <Wire.h>
-#include <avr/wdt.h>  //needed for software reset
+//#include <avr/wdt.h>  //needed for software reset
 #include <inttypes.h>
 
 void inline SYSERR(String s) {
@@ -33,6 +33,8 @@ void inline SYSERR(String s) {
   }
 }
 
+// TODO solve strange multiple definition problem
+/*
 void softwareReset() {
   // start watchdog with the provided prescaler
   // possible value for prescaler are defined in wdt.h (WDTO_15MS,...)
@@ -42,5 +44,6 @@ void softwareReset() {
   while (1) {
   }
 }
+*/
 
 #endif
