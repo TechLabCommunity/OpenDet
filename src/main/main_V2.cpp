@@ -2,6 +2,7 @@
 #include <DetScreen.h>
 #include <Dispenser.h>
 #include <Global.h>
+#include <avr/wdt.h>  //needed for software reset
 #include <config.h>
 
 // TODO
@@ -20,6 +21,7 @@
  *
  */
 
+void softwareReset();
 int SRF05_measureDistance(uint8_t, uint8_t);
 
 // ATTENZIONE: nome prodotto deve avere meno di 20 caratteri
@@ -105,6 +107,9 @@ void loop() {
 
   lcd.clear();
 
+  // reset button variable
+  btn_pressed = -1;
+
   // check for button pression
   while (btn_pressed == -1) {
     // update lcd with current credit
@@ -153,7 +158,7 @@ void loop() {
         lcd.clear();
         lcd.unavailableProduct_screen();
         delay(ERR_SCREEN_TIMEOUT);
-        btn_pressed = -1;
+        // btn_pressed = -1;
         return;
         break;
     }
@@ -187,7 +192,7 @@ void loop() {
         // bottle not removed after timeout
         if (!bottle_removed) {
           // reset button pressed variable
-          btn_pressed = -1;
+          // btn_pressed = -1;
           // return to the main loop
           return;
         }
@@ -250,7 +255,7 @@ void loop() {
         lcd.clear();
         lcd.dispenserErr_screen();
         delay(ERR_SCREEN_TIMEOUT);
-        btn_pressed = -1;
+        // btn_pressed = -1;
         return;
         break;
 
@@ -259,7 +264,7 @@ void loop() {
         lcd.clear();
         lcd.unavailableProduct_screen();
         delay(ERR_SCREEN_TIMEOUT);
-        btn_pressed = -1;
+        // btn_pressed = -1;
         return;
         break;
 
@@ -284,8 +289,8 @@ void loop() {
 
       bool btn_pressedTwice = false;
       // add small delay for the user to release the button
-      // TODO better display another screen, like this the main screen is still
-      // for the amount of the delay
+      // TODO better display another screen, like this the main screen is
+      // still for the amount of the delay
       lcd.clear();
       lcd.bottlePosition_screen();
       delay(800);
@@ -304,7 +309,7 @@ void loop() {
       // if btn not pressed reset btn_pressed and return to main
       if (!btn_pressedTwice) {
         DEBUG("Button not pressed twice");
-        btn_pressed = -1;
+        // btn_pressed = -1;
         return;
       }
 
@@ -331,7 +336,7 @@ void loop() {
         lcd.clear();
         lcd.dispensingErr_screen();
         delay(ERR_SCREEN_TIMEOUT);
-        btn_pressed = -1;
+        // btn_pressed = -1;
         return;
       }
 
@@ -352,9 +357,6 @@ void loop() {
   }
 
   // TODO give remainder back
-
-  // reset button variable
-  btn_pressed = -1;
 }
 
 /**
@@ -375,4 +377,14 @@ int SRF05_measureDistance(uint8_t trigPin, uint8_t echoPin) {
   int distance = duration / 29.0 / 2.0;
 
   return distance;
+}
+
+void softwareReset() {
+  // start watchdog with the provided prescaler
+  // possible value for prescaler are defined in wdt.h (WDTO_15MS,...)
+  wdt_enable(WDTO_15MS);
+  // wait for the prescaler time to expire without sending the reset signal by
+  // using the wdt_reset() method
+  while (1) {
+  }
 }
