@@ -24,10 +24,21 @@
 #include <Print.h>
 #include <SPI.h>
 #include <Wire.h>
+#include <avr/wdt.h>  //for software reset
 #include <inttypes.h>
 
 void inline SYSERR(String s) {
   DEBUG("SYSERR : " + s + "\n");
+  while (1) {
+  }
+}
+
+void softwareReset() {
+  // start watchdog with the provided prescaler
+  // possible value for prescaler are defined in wdt.h (WDTO_15MS,...)
+  wdt_enable(WDTO_15MS);
+  // wait for the prescaler time to expire without sending the reset signal by
+  // using the wdt_reset() method
   while (1) {
   }
 }
