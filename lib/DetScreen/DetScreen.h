@@ -37,6 +37,14 @@ class DetScreen : public LiquidCrystal_I2C {
   void unavailableProduct_screen();
   void dispensingErr_screen();
   void dispenserErr_screen();
+  void maintMode_screen();
+  void refill_screen();
+  void refillEnd_screen();
+  void maintInstr_screen();
+  void calibr_screen();
+  void calibrInfo_screen();
+  void calibrEnd_screen(uint);
+  void refillErr_screen();
 };
 
 #endif

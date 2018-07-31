@@ -149,3 +149,45 @@ void DetScreen::dispenserErr_screen() {
   smartprint("EROGATORE", 1);
   smartprint("NON FUNZIONANTE", 2);
 }
+
+void DetScreen::maintMode_screen() {
+  smartprint("MODALITA", 1);
+  smartprint("MANUTENZIONE", 2);
+}
+
+void DetScreen::refill_screen() {
+  smartprint("PREMERE NUOVAMENTE", 1);
+  smartprint("PER RICARICARE", 2);
+}
+
+void DetScreen::refillEnd_screen() {
+  smartprint("RICARICA  EFFETTUATA", 1);
+  smartprint("CORRETTAMENTE", 2);
+}
+
+void DetScreen::maintInstr_screen() {
+  smartprint("Premere un pulsante", 1);
+  smartprint("per ricaricare", 2);
+}
+
+void DetScreen::calibr_screen() {
+  smartprint("CALIBRAZIONE", 1);
+  smartprint("POMPE", 2);
+}
+
+void DetScreen::calibrInfo_screen() {
+  smartprint("Premere il pulsante", 1);
+  smartprint("fino ad erogare", 2);
+  smartprint("1 litro esatto", 3);
+}
+
+void DetScreen::calibrEnd_screen(uint index) {
+  smartprint("POMPA " + (String)index, 2);
+  smartprint("CALIBRATA", 3);
+}
+
+void DetScreen::refillErr_screen() {
+  smartprint("DISPENSER GUASTO", 0);
+  smartprint("Correggere l'errore", 2);
+  smartprint("prima di ricaricare", 3);
+}
