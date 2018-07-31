@@ -114,6 +114,7 @@ DISP_ERR Dispenser::pumpErr_reset() {
   if (_error == PUMP_ERR || _error == PUMP_AND_EMPTY) {
     _error = (DISP_ERR)(_error - PUMP_ERR);
   }
+
   return _error;
 }
 
@@ -151,6 +152,7 @@ uint Dispenser::calibrate(uint8_t pin, uint8_t btnPressed) {
   if (counter != 0) {
     // calculate duration for 1 liter dispensing
     unsigned long duration = millis() - startTime;
+
     // calculate timeout for flow meters, this time correspond to 10 times the
     // pulse duration
     _flowTimeout = duration / counter * 10;
