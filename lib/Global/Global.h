@@ -33,6 +33,7 @@ void inline SYSERR(String s) {
   }
 }
 
+/*
 void softwareReset() {
   // start watchdog with the provided prescaler
   // possible value for prescaler are defined in wdt.h (WDTO_15MS,...)
@@ -42,5 +43,6 @@ void softwareReset() {
   while (1) {
   }
 }
+*/
 
 #endif
