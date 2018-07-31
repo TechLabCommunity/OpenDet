@@ -109,7 +109,6 @@ void DetScreen::dispense_screen(const String& detName) {
   // TODO if possible insert a progress bar
 
   // info message for dispensing
-  clear();
   smartprint("EROGAZIONE", 0);
   smartprint(detName, 1);
   blinkprint("ATTENDERE  PREGO", 2);
@@ -176,18 +175,34 @@ void DetScreen::calibr_screen() {
 }
 
 void DetScreen::calibrInfo_screen() {
-  smartprint("Premere il pulsante", 1);
-  smartprint("fino ad erogare", 2);
-  smartprint("1 litro esatto", 3);
+  smartprint("Premere il pulsante", 0);
+  smartprint("fino ad erogare", 1);
+  smartprint("1 litro esatto", 2);
 }
 
 void DetScreen::calibrEnd_screen(uint index) {
-  smartprint("POMPA " + (String)index, 2);
-  smartprint("CALIBRATA", 3);
+  smartprint("POMPA " + (String)index, 1);
+  smartprint("CALIBRATA", 2);
 }
 
 void DetScreen::refillErr_screen() {
   smartprint("DISPENSER GUASTO", 0);
   smartprint("Correggere l'errore", 2);
   smartprint("prima di ricaricare", 3);
+}
+
+void DetScreen::pumpNoErr_screen() {
+  smartprint("POMPA", 1);
+  smartprint("FUNZIONANTE", 2);
+}
+
+void DetScreen::pumpFixed_screen() {
+  smartprint("POMPA", 1);
+  smartprint("RIPARATA", 2);
+}
+
+void DetScreen::calibrModeEnd_screen() {
+  smartprint("RITORNO ALLA", 0);
+  smartprint("MODALITA", 1);
+  smartprint("MANUTENZIONE", 2);
 }
