@@ -97,5 +97,5 @@
 #define ERR_SCREEN_TIMEOUT 3000
 #define LOWCREDIT_SCREEN_TIMEOUT 3000
 
-// BUTTON PRESSION TIME, in seconds
-#define LONGPRESS_TIME 3
+// BUTTON PRESSION TIME, in seconds * 10 (for example 30 => 3 s)
+#define LONGPRESS_TIME 30
