@@ -54,7 +54,8 @@ int ledArr[DISPENSER_N + 1] = {BTN_LED_1, BTN_LED_2, BTN_LED_3,     BTN_LED_4,
                                BTN_LED_5, BTN_LED_6, BTN_LED_BOTTLE};
 
 // array for status: 0=OK, -1=EMPTY, -3=ERROR, -4=EMPTY+ERROR
-int statusArr[DISPENSER_N + 1] = {0};
+// TODO reset to 0 after testing
+int statusArr[DISPENSER_N + 1] = {0, 0, 0, 0, 0, 0, 0};
 
 int bottStatus = OK;
 int bottCnt = BOTTLE_CNTMAX;
@@ -138,11 +139,12 @@ void setup() {
         for (int i = 0; i < DISPENSER_N + 1; i++) {
           uint held = 0;
 
-          while (digitalRead(btnArr[i]) && held <= LONGPRESS_TIME) {
-            DEBUG("held: " + (String)held + "\n");
+          while (digitalRead(btnArr[i]) && held < LONGPRESS_TIME) {
             held++;
-            delay(1000);
+            delay(100);
           }
+
+          DEBUG("Held: " + (String)held + "\n");
 
           // check for long or short press and exit while loop
           if (held == LONGPRESS_TIME) {
@@ -164,6 +166,9 @@ void setup() {
         }
       }
 
+      DEBUG("Button: " + (String)(btn_pressed + 1) + " pressed\n");
+      DEBUG("Longpress: " + (String)longPress + "\n");
+
       // BUTTON PRESSED
       // turn off all button's leds
       for (int i = 0; i < DISPENSER_N + 1; i++) {
@@ -177,14 +182,17 @@ void setup() {
 
       // different actions for long or short press
       if (longPress) {
-        // BOTTLE BTN: enter calibration mode
+        DEBUG("long press\n");
+        // BOTTLE BTN: enter CALIBRATION MODE
         if (btn_pressed == DISPENSER_N) {
           // display calibration mode screen
           lcd.calibr_screen();
           // screen timeout also give time for button release
           delay(SCREEN_TIMEOUT);
 
-          while (!digitalRead(btnArr[DISPENSER_N])) {
+          // loop until bottle btn pression or key selector return to normal
+          // mode
+          while (!digitalRead(btnArr[DISPENSER_N]) && digitalRead(MAINT_PIN)) {
             // display calibration instruction screen
             lcd.calibrInfo_screen();
             // check all dispenser's buttons
@@ -193,84 +201,95 @@ void setup() {
               uint ret = dispArr[i]->calibrate(btnArr[i], HIGH);
               // calibration done correctly
               if (ret != 0) {
+                DEBUG("New pulses: " + (String)dispArr[i]->getPulses() + "\n");
                 // display calibration success screen
+                lcd.clear();
                 lcd.calibrEnd_screen(i + 1);
                 delay(SCREEN_TIMEOUT);
-                // clearing lcd in the while loop will result in a flashing
-                // screen, so better clear it here
-                lcd.clear();
               }
             }
           }
-          // return to top of while loop
-          continue;
+          // display screen before returning to refill mode
+          lcd.clear();
+          lcd.calibrModeEnd_screen();
+          delay(SCREEN_TIMEOUT);
         } else {
           // PUMP WITH ERROR: reset error
-          if (statusArr[btn_pressed] != OK) {
+          if (statusArr[btn_pressed] != OK &&
+              statusArr[btn_pressed] != TANK_EMPTY) {
             // pumpErr_reset() correct only pump error, not EMPTY error
-            dispArr[btn_pressed]->pumpErr_reset();
-            // TODO display appropriate screen
-            continue;
+            statusArr[btn_pressed] = dispArr[btn_pressed]->pumpErr_reset();
+            DEBUG("Status: " + (String)statusArr[btn_pressed] + "\n");
+            // display screen
+            lcd.pumpFixed_screen();
+            delay(SCREEN_TIMEOUT);
+          } else {
+            // NORMAL PUMP: no error, only display screen
+            lcd.pumpNoErr_screen();
+            delay(SCREEN_TIMEOUT);
           }
-          // NORMAL PUMP: do nothing
         }  // long press on dispenser button
       } else {
+        DEBUG("short press\n");
+
         // selected dispenser has some error
-        if (statusArr[btn_pressed] != OK ||
+        if (statusArr[btn_pressed] != OK &&
             statusArr[btn_pressed] != TANK_EMPTY) {
           // display error screen and return to while
           lcd.refillErr_screen();
           delay(SCREEN_TIMEOUT);
-          continue;
-        }
-        // display screen for refilling tanks
-        lcd.refill_screen();
-
-        // DOUBLE PRESSION CHECK
-
-        bool btn_pressedTwice = false;
-
-        // TODO maybe add instead a while(!digitalRead(button)); to wait for
-        // button to return to normal position (watch out for debounce problems)
-
-        // add small delay to avoid double check on single button pression
-        delay(800);
-
-        // warn user for bottle position and button press
-        // endtime = now + timeout
-        unsigned long endTime = millis() + BTN_CONFIRM_TIMEOUT;
-
-        // wait for second btn pression
-        while ((long)(millis() - endTime) <= 0) {
-          if (digitalRead(btnArr[btn_pressed])) {
-            btn_pressedTwice = true;
-            DEBUG("Button pressed twice!");
-            break;
-          }
-        }
-
-        // if btn not pressed reset return to top of while loop
-        if (!btn_pressedTwice) {
-          DEBUG("Button not pressed twice");
-          continue;
         } else {
-          // display refill completed screen
-          lcd.clear();
-          lcd.refillEnd_screen();
-          delay(SCREEN_TIMEOUT);
+          // display screen for refilling tanks
+          lcd.refill_screen();
 
-          // fill bottle or detergent
-          if (btn_pressed == DISPENSER_N) {
-            bottCnt = BOTTLE_CNTMAX;
-            // reset bottle status
-            bottStatus = OK;
-          } else {
-            dispArr[btn_pressed]->fillTank();
+          // DOUBLE PRESSION CHECK
+
+          bool btn_pressedTwice = false;
+
+          // TODO maybe add instead a while(!digitalRead(button)); to wait for
+          // button to return to normal position (watch out for debounce
+          // problems)
+
+          // add small delay to avoid double check on single button pression
+          delay(800);
+
+          // warn user for bottle position and button press
+          // endtime = now + timeout
+          unsigned long endTime = millis() + BTN_CONFIRM_TIMEOUT;
+
+          // wait for second btn pression
+          while ((long)(millis() - endTime) <= 0) {
+            if (digitalRead(btnArr[btn_pressed])) {
+              btn_pressedTwice = true;
+              DEBUG("Button pressed twice!");
+              break;
+            }
           }
-        }  // btn pressed twice
-      }    // short btn pression
-    }      // while loop
-  }        // maintenance mode
+
+          // if btn not pressed reset return to top of while loop
+          if (btn_pressedTwice) {
+            DEBUG("Button pressed twice");
+
+            // fill bottle or detergent
+            if (btn_pressed == DISPENSER_N) {
+              bottCnt = BOTTLE_CNTMAX;
+              // reset bottle status
+              bottStatus = OK;
+            } else {
+              // fill dispenser and update its status
+              statusArr[btn_pressed] = dispArr[btn_pressed]->fillTank();
+              DEBUG("Status: " + (String)statusArr[btn_pressed] + "\n");
+            }
+
+            // display refill completed screen
+            lcd.clear();
+            lcd.refillEnd_screen();
+            delay(SCREEN_TIMEOUT);
+          }  // btn pressed twice
+        }    // dispenser empty or ok
+      }      // short btn pression
+    }        // while loop
+  }          // maintenance mode
 
   DEBUG("Setup done!\n");
 }
@@ -289,11 +308,10 @@ void loop() {
   // enable coin acceptor
   coin.startInterrupt();
 
-  lcd.clear();
-
   // reset button variable
   btn_pressed = -1;
 
+  lcd.clear();
   // check for button pression
   while (btn_pressed == -1) {
     // update lcd with current credit
@@ -489,6 +507,7 @@ void loop() {
 
       credit -= curr_detPrice;
 
+      lcd.clear();
       lcd.dispense_screen(curr_detName);
 
       DEBUG("Dispense detergent...\n");
@@ -501,20 +520,19 @@ void loop() {
       DEBUG("Dispense returned: " + (String)dispRet + " (0 = no err)");
 
       // error during dispensing, display a message and return to main
-      if (dispRet != OK || dispRet != TANK_EMPTY) {
+      if (dispRet != OK && dispRet != TANK_EMPTY) {
         lcd.clear();
         lcd.dispensingErr_screen();
         delay(ERR_SCREEN_TIMEOUT);
         // btn_pressed = -1;
         return;
-      }
-
-      // dispensing end
-      DEBUG("Detergent dispensed!\n");
-      lcd.clear();
-      lcd.dispenseEnd_screen();
-      delay(SCREEN_TIMEOUT);
-
+      } else {
+        // dispensing end
+        DEBUG("Detergent dispensed!\n");
+        lcd.clear();
+        lcd.dispenseEnd_screen();
+        delay(SCREEN_TIMEOUT);
+      }  // dispensing ok
     }
     // credit low for selected detergent
     else {
