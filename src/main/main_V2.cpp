@@ -54,8 +54,7 @@ int ledArr[DISPENSER_N + 1] = {BTN_LED_1, BTN_LED_2, BTN_LED_3,     BTN_LED_4,
                                BTN_LED_5, BTN_LED_6, BTN_LED_BOTTLE};
 
 // array for status: 0=OK, -1=EMPTY, -3=ERROR, -4=EMPTY+ERROR
-// TODO reset to 0 after testing
-int statusArr[DISPENSER_N + 1] = {0, 0, 0, 0, 0, 0, 0};
+int statusArr[DISPENSER_N + 1] = {0};
 
 int bottStatus = OK;
 int bottCnt = BOTTLE_CNTMAX;
@@ -167,7 +166,6 @@ void setup() {
       }
 
       DEBUG("Button: " + (String)(btn_pressed + 1) + " pressed\n");
-      DEBUG("Longpress: " + (String)longPress + "\n");
 
       // BUTTON PRESSED
       // turn off all button's leds
