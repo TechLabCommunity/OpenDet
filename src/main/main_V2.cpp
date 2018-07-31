@@ -21,6 +21,7 @@
  */
 
 int SRF05_measureDistance(uint8_t, uint8_t);
+void softwareReset();
 
 // ATTENZIONE: nome prodotto deve avere meno di 20 caratteri
 Dispenser disp_1(BTN_PIN_1, FLOW_PIN_1, PUMP_PIN_1, PULSESXLITER_1, "Test_1",
@@ -81,27 +82,40 @@ void setup() {
   pinMode(BOTTLE_TRIG, OUTPUT);
   pinMode(BOTTLE_ECHO, INPUT);
 
+  // setup pin for key selector
+  pinMode(MAINT_PIN, INPUT);
+
   lcd.begin();
   lcd.backlight();
   lcd.start_system(VERSION_FIRMWARE);
   delay(START_SCREEN_TIMEOUT);
 
-  DEBUG("Setup done!\n");
-
   // MAINTENANCE MODE
+
   if (digitalRead(MAINT_PIN)) {
+    DEBUG("Maintenance mode");
     // TODO
     // - check all buttons
-    // - unavailable pump need long pression to recover the pump error, and then
-    // their tank can be refilled
-    // - single pression to refill detergent tanks or bottle, reset the counter
+    // - unavailable pump need long pression to recover the pump error, and
+    // then their tank can be refilled
+    // - single pression to refill detergent tanks or bottle, reset the
+    // counter
     // - long pression for bottle button -> enter calibration mode
     // - press bottle button again to exit calibration mode
     // - while in calibration mode keep pump's button to dispense exactly 1
     // liter. Then save flow meter pulses and time for dispensing (needed to
     // calculate timeouts for error checking during dispensing)
 
-    while (digitalRead(MAINT_PIN)) {
+    // display maintenance mode screen
+    lcd.clear();
+    lcd.maintMode_screen();
+    delay(SCREEN_TIMEOUT);
+
+    while (1) {
+      // display maintenance mode screen
+      lcd.clear();
+      lcd.maintInstr_screen();
+
       // turn on all button's leds
       for (int i = 0; i < DISPENSER_N + 1; i++) {
         // light up only available pump's led
@@ -114,16 +128,39 @@ void setup() {
 
       // reset button variable
       btn_pressed = -1;
+      // TODO compiler give "unused but set variable" warning, but this variable
+      // is used!
+      bool longPress = false;
 
       // check for button pression
       while (btn_pressed == -1) {
         // check all buttons
         for (int i = 0; i < DISPENSER_N + 1; i++) {
-          if (digitalRead(btnArr[i])) {
+          uint held = 0;
+
+          while (digitalRead(btnArr[i]) && held <= LONGPRESS_TIME) {
+            DEBUG("held: " + (String)held + "\n");
+            held++;
+            delay(1000);
+          }
+
+          // check for long or short press and exit while loop
+          if (held == LONGPRESS_TIME) {
+            DEBUG("Button " + (String)(i + 1) + " long pressed\n");
+            btn_pressed = i;
+            longPress = true;
+            break;
+          } else if (held != 0) {
             DEBUG("Button " + (String)(i + 1) + " pressed\n");
             btn_pressed = i;
             break;
           }
+        }
+
+        if (!digitalRead(MAINT_PIN)) {
+          DEBUG("exiting maintenance mode");
+          // reset if key selector return in normal position
+          softwareReset();
         }
       }
 
@@ -137,69 +174,105 @@ void setup() {
 
       // display confirmation screen for refilling
       lcd.clear();
-      // TODO maybe different screen for det or bottle, for bottle warn for long
-      // pressing to enter calibration mode
-      // lcd.refill_screen(); //TODO implement
 
-      // check for long pression for bottle button
-      if (btn_pressed == DISPENSER_N) {
-        // long pression on btn pin => calibration mode
-        uint held = 0;
-        while (digitalRead(BOTTLE_PIN) && held <= (LONGPRESS_TIME * 10)) {
-          held++;
-          delay(100);
-        }
-
-        // long press
-        if (held == 10) {
-          // TODO implement pump config loop
-          // CALIBRATION MODE
-        }
-      }
-
-      bool btn_pressedTwice = false;
-
-      // add small delay to avoid double check on single button pression
-      delay(800);
-
-      // warn user for bottle position and button press
-      // endtime = now + timeout
-      unsigned long endTime = millis() + DET_CONFIRM_TIMEOUT;
-
-      // wait for second btn pression
-      while ((long)(millis() - endTime) <= 0) {
-        if (digitalRead(btnArr[btn_pressed])) {
-          btn_pressedTwice = true;
-          DEBUG("Button pressed twice!");
-          break;
-        }
-      }
-
-      // if btn not pressed reset btn_pressed and return to top of while loop
-      if (!btn_pressedTwice) {
-        DEBUG("Button not pressed twice");
-        continue;
-      } else {
-        // display refill completed screen
-        lcd.clear();
-        // lcd.refillEnd_screen(); //TODO implement
-
-        // fill bottle or detergent
+      // different actions for long or short press
+      if (longPress) {
+        // BOTTLE BTN: enter calibration mode
         if (btn_pressed == DISPENSER_N) {
-          bottCnt = BOTTLE_CNTMAX;
-          // reset bottle status
-          bottStatus = OK;
+          // display calibration mode screen
+          lcd.calibr_screen();
+          // screen timeout also give time for button release
+          delay(SCREEN_TIMEOUT);
+
+          while (!digitalRead(btnArr[DISPENSER_N])) {
+            // display calibration instruction screen
+            lcd.calibrInfo_screen();
+            // check all dispenser's buttons
+            for (int i = 0; i < DISPENSER_N; i++) {
+              // calibrate pump only if button is high
+              uint ret = dispArr[i]->calibrate(btnArr[i], HIGH);
+              // calibration done correctly
+              if (ret != 0) {
+                // display calibration success screen
+                lcd.calibrEnd_screen(i + 1);
+                delay(SCREEN_TIMEOUT);
+                // clearing lcd in the while loop will result in a flashing
+                // screen, so better clear it here
+                lcd.clear();
+              }
+            }
+          }
+          // return to top of while loop
+          continue;
         } else {
-          dispArr[btn_pressed]->fillTank();
+          // PUMP WITH ERROR: reset error
+          if (statusArr[btn_pressed] != OK) {
+            // pumpErr_reset() correct only pump error, not EMPTY error
+            dispArr[btn_pressed]->pumpErr_reset();
+            // TODO display appropriate screen
+            continue;
+          }
+          // NORMAL PUMP: do nothing
+        }  // long press on dispenser button
+      } else {
+        // selected dispenser has some error
+        if (statusArr[btn_pressed] != OK ||
+            statusArr[btn_pressed] != TANK_EMPTY) {
+          // display error screen and return to while
+          lcd.refillErr_screen();
+          delay(SCREEN_TIMEOUT);
+          continue;
         }
-      }
+        // display screen for refilling tanks
+        lcd.refill_screen();
 
-      //
-    }
+        // DOUBLE PRESSION CHECK
 
-    // key selector in normal position, restart
-    softwareReset();
-  }
+        bool btn_pressedTwice = false;
+
+        // TODO maybe add instead a while(!digitalRead(button)); to wait for
+        // button to return to normal position (watch out for debounce problems)
+
+        // add small delay to avoid double check on single button pression
+        delay(800);
+
+        // warn user for bottle position and button press
+        // endtime = now + timeout
+        unsigned long endTime = millis() + BTN_CONFIRM_TIMEOUT;
+
+        // wait for second btn pression
+        while ((long)(millis() - endTime) <= 0) {
+          if (digitalRead(btnArr[btn_pressed])) {
+            btn_pressedTwice = true;
+            DEBUG("Button pressed twice!");
+            break;
+          }
+        }
+
+        // if btn not pressed reset return to top of while loop
+        if (!btn_pressedTwice) {
+          DEBUG("Button not pressed twice");
+          continue;
+        } else {
+          // display refill completed screen
+          lcd.clear();
+          lcd.refillEnd_screen();
+          delay(SCREEN_TIMEOUT);
+
+          // fill bottle or detergent
+          if (btn_pressed == DISPENSER_N) {
+            bottCnt = BOTTLE_CNTMAX;
+            // reset bottle status
+            bottStatus = OK;
+          } else {
+            dispArr[btn_pressed]->fillTank();
+          }
+        }  // btn pressed twice
+      }    // short btn pression
+    }      // while loop
+  }        // maintenance mode
+
+  DEBUG("Setup done!\n");
 }
 
 void loop() {
@@ -235,6 +308,12 @@ void loop() {
         btn_pressed = i;
         break;
       }
+    }
+
+    // check key selector
+    if (digitalRead(MAINT_PIN)) {
+      // reset all to go to maintenance mode
+      softwareReset();
     }
   }  // while loop
 
@@ -390,7 +469,7 @@ void loop() {
 
       // warn user for bottle position and button press
       // endtime = now + 10 seconds
-      unsigned long endTime = millis() + DET_CONFIRM_TIMEOUT;
+      unsigned long endTime = millis() + BTN_CONFIRM_TIMEOUT;
 
       // wait for second btn pression
       while ((long)(millis() - endTime) <= 0) {
@@ -467,4 +546,14 @@ int SRF05_measureDistance(uint8_t trigPin, uint8_t echoPin) {
   int distance = duration / 29.0 / 2.0;
 
   return distance;
+}
+
+void softwareReset() {
+  // start watchdog with the provided prescaler
+  // possible value for prescaler are defined in wdt.h (WDTO_15MS,...)
+  wdt_enable(WDTO_15MS);
+  // wait for the prescaler time to expire without sending the reset signal by
+  // using the wdt_reset() method
+  while (1) {
+  }
 }
