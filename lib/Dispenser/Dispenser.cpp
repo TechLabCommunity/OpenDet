@@ -1,8 +1,5 @@
 #include "Dispenser.h"
 
-// THIS LIBRARY COULD USE MSTIMER2, SO BE SURE TO AVOID CONFLICT WITH DETSCREEN
-// LIBRARY
-
 // pump error flag
 bool pumpError_flag = false;
 
@@ -65,8 +62,8 @@ DISP_ERR Dispenser::dispense(uint milliliters) {
   // check valid millimiters input
   if (milliliters < 1) SYSERR(_detName + ": millilitres mustn't be 0.");
 
-  int pulses = ((float)milliliters * _pulsesPerLiter) / 1000., counter = 0,
-      prevState = 0, currState = 0;
+  uint pulses = ((float)milliliters * _pulsesPerLiter) / 1000., counter = 0,
+       prevState = 0, currState = 0;
 
   // subtract dispensed quantity from counter
   _detCnt -= milliliters;
@@ -128,4 +125,39 @@ DISP_ERR Dispenser::fillTank() {
   }
 
   return _error;
+}
+
+// TODO maybe add parameter for calibration quantity, so I can calibrate with
+// half a liter, two liters...
+uint Dispenser::calibrate(uint8_t pin, uint8_t btnPressed) {
+  unsigned long startTime = millis();
+
+  uint counter = 0, prevState = 0, currState = 0;
+
+  while (digitalRead(pin) == btnPressed) {
+    digitalWrite(_pumpPin, HIGH);
+
+    currState = digitalRead(_flowPin);
+    if (currState != prevState) {
+      counter++;
+      prevState = currState;
+    }
+  }
+  // turn off the pump
+  digitalWrite(_pumpPin, LOW);
+
+  // set new value only if it count at least one pulse (only one will cause bad
+  // calibration)
+  if (counter != 0) {
+    // calculate duration for 1 liter dispensing
+    unsigned long duration = millis() - startTime;
+    // calculate timeout for flow meters, this time correspond to 10 times the
+    // pulse duration
+    _flowTimeout = duration / counter * 10;
+
+    // set new value for pulsesPerLiter
+    setPulses(counter);
+  }
+
+  return counter;
 }

@@ -35,6 +35,8 @@ class Dispenser {
   DISP_ERR pumpErr_reset();
   DISP_ERR fillTank();
 
+  uint calibrate(uint8_t, uint8_t);
+
  protected:
  private:
   uint _pulsesPerLiter, _btnPin, _flowPin, _pumpPin, _detPrice, _detCnt,
