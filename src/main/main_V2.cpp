@@ -2,6 +2,8 @@
 #include <DetScreen.h>
 #include <Dispenser.h>
 #include <Global.h>
+#include <SD.h>
+#include <SPI.h>
 #include <config.h>
 
 // TODO
@@ -22,6 +24,13 @@
 
 int SRF05_measureDistance(uint8_t, uint8_t);
 void softwareReset();
+String Controllino_timestamp();
+
+struct Config {
+  uint prices[DISPENSER_N + 1];
+  uint timeouts[6];
+  String detNames[DISPENSER_N];
+};
 
 // ATTENZIONE: nome prodotto deve avere meno di 20 caratteri
 Dispenser disp_1(BTN_PIN_1, FLOW_PIN_1, PUMP_PIN_1, PULSESXLITER_1, "Test_1",
@@ -84,6 +93,16 @@ void setup() {
 
   // setup pin for key selector
   pinMode(MAINT_PIN, INPUT);
+
+  pinMode(RTC_SET_PIN, INPUT);
+
+  // RTC initialization
+  Controllino_RTC_init(0);
+  // day, day of week, month, year, hour, minute, second
+  // TODO think for a better way to setup the RTC
+  if (digitalRead(RTC_SET_PIN)) {
+    Controllino_SetTimeDate(31, 2, 7, 18, 19, 17, 00);
+  }
 
   lcd.begin();
   lcd.backlight();
@@ -393,7 +412,7 @@ void loop() {
       DEBUG("Distance: " + (String)distance + "\n");
 
       // distance under minimum = there is a bottle to remove
-      if (distance <= BOTTLE_DISTANCE) {
+      if (distance <= BOTTLE_DISTANCE || distance >= BOTTLE_MAXDISTANCE) {
         DEBUG("Remove bottle\n");
 
         lcd.clear();
@@ -572,4 +591,10 @@ void softwareReset() {
   // using the wdt_reset() method
   while (1) {
   }
+}
+
+String Controllino_timestamp() {
+  return String(Controllino_GetYear()) + "_" + String(Controllino_GetMonth()) +
+         "_" + String(Controllino_GetDay()) + ":" +
+         String(Controllino_GetHour()) + "_" + String(Controllino_GetMinute());
 }
