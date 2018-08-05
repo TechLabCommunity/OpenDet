@@ -32,14 +32,13 @@ Dispenser::Dispenser(uint btnPin, uint flowPin, uint pumpPin,
 }
 
 uint Dispenser::getPulses() { return _pulsesPerLiter; }
-
-void Dispenser::setPulses(uint pulses) { _pulsesPerLiter = pulses; }
+void Dispenser::setPulses(const uint pulses) { _pulsesPerLiter = pulses; }
 
 String Dispenser::getDetName() { return _detName; }
-
-void Dispenser::setName(String name) { _detName = name; }
+void Dispenser::setName(const String name) { _detName = name; }
 
 uint Dispenser::getPrice() { return _detPrice; }
+void Dispenser::setPrice(const uint price) { _detPrice = price; }
 
 DISP_ERR Dispenser::dispense(FIXED_QUANTITY qty) { return dispense((uint)qty); }
 

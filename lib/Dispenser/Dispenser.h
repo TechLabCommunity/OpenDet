@@ -25,11 +25,11 @@ class Dispenser {
  public:
   Dispenser(uint, uint, uint, uint, String, uint, uint, uint);
   uint getPulses();
-  void setPulses(uint);
+  void setPulses(const uint);
   String getDetName();
-  void setName(String);
+  void setName(const String);
   uint getPrice();
-  void setPrice(uint);
+  void setPrice(const uint);
   DISP_ERR dispense(FIXED_QUANTITY);
   DISP_ERR dispense(uint = 1000);
   DISP_ERR pumpErr_reset();
