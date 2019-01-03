@@ -15,7 +15,7 @@ enum FIXED_QUANTITY { LT = 1000, HALFLT = 500, QTYLT = 250 };
 
 enum DISP_ERR {
   OK = 0,
-  TANK_EMPTY = -1,
+  TANK_EMPTY = 5,
   QTY_LOW = -2,
   PUMP_ERR = -3,
   PUMP_AND_EMPTY = -4
