@@ -15,12 +15,13 @@
 // make calculation for dispense checking
 
 // PULSES FOR ONE LITER
-#define PULSESXLITER_1 1106
-#define PULSESXLITER_2 837
-#define PULSESXLITER_3 823
-#define PULSESXLITER_4 1105
-#define PULSESXLITER_5 1115  // calibrate this pump
-#define PULSESXLITER_6 1129
+// Calibrate per bottigliette piccole
+#define PULSESXLITER_1 555
+#define PULSESXLITER_2 414
+#define PULSESXLITER_3 405
+#define PULSESXLITER_4 555
+#define PULSESXLITER_5 551
+#define PULSESXLITER_6 568
 
 // TIME FOR ONE LITER in seconds
 #define TIMEXLITER_1 37
@@ -31,13 +32,21 @@
 #define TIMEXLITER_6 210
 
 // PRICES in cents of euro
-#define DETPRICE_1 200
-#define DETPRICE_2 200
-#define DETPRICE_3 200
-#define DETPRICE_4 200
-#define DETPRICE_5 200
-#define DETPRICE_6 200
+#define DETPRICE_1 100
+#define DETPRICE_2 100
+#define DETPRICE_3 100
+#define DETPRICE_4 100
+#define DETPRICE_5 100
+#define DETPRICE_6 100
 #define BOTTLEPRICE 10
+
+// NAMES
+#define DETNAME_1 "Det. Lavatrice"
+#define DETNAME_2 "Det. Lavatrice"
+#define DETNAME_3 "Ammorbidente"
+#define DETNAME_4 "Det. Piatti"
+#define DETNAME_5 "Det. Piatti"
+#define DETNAME_6 "Ammorbidente"
 
 // FLOW METERS SIGNAL PINS
 #define FLOW_PIN_1 CONTROLLINO_A0
