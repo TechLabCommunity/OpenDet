@@ -33,22 +33,25 @@ struct Config {
 };
 
 // ATTENZIONE: nome prodotto deve avere meno di 20 caratteri
-Dispenser disp_1(BTN_PIN_1, FLOW_PIN_1, PUMP_PIN_1, PULSESXLITER_1, "Test_1",
+Dispenser disp_1(BTN_PIN_1, FLOW_PIN_1, PUMP_PIN_1, PULSESXLITER_1, DETNAME_1,
                  DETPRICE_1, DET_CNTMAX,
-                 static_cast<unsigned int>(10000.0 / PULSESXLITER_1 * TIMEXLITER_1));
-Dispenser disp_2(BTN_PIN_2, FLOW_PIN_2, PUMP_PIN_2, PULSESXLITER_2, "Test_2",
+                 static_cast<unsigned int>(10000.0 / PULSESXLITER_1 *
+                                           TIMEXLITER_1));
+Dispenser disp_2(BTN_PIN_2, FLOW_PIN_2, PUMP_PIN_2, PULSESXLITER_2, DETNAME_2,
                  DETPRICE_2, DET_CNTMAX,
-                 static_cast<unsigned int>(10000.0 / PULSESXLITER_2 * TIMEXLITER_2));
-Dispenser disp_3(BTN_PIN_3, FLOW_PIN_3, PUMP_PIN_3, PULSESXLITER_3, "Test_3",
+                 static_cast<unsigned int>(10000.0 / PULSESXLITER_2 *
+                                           TIMEXLITER_2));
+Dispenser disp_3(BTN_PIN_3, FLOW_PIN_3, PUMP_PIN_3, PULSESXLITER_3, DETNAME_3,
                  DETPRICE_3, DET_CNTMAX,
-                 static_cast<unsigned int>(10000.0 / PULSESXLITER_3 * TIMEXLITER_3));
-Dispenser disp_4(BTN_PIN_4, FLOW_PIN_4, PUMP_PIN_4, PULSESXLITER_4, "Test_4",
+                 static_cast<unsigned int>(10000.0 / PULSESXLITER_3 *
+                                           TIMEXLITER_3));
+Dispenser disp_4(BTN_PIN_4, FLOW_PIN_4, PUMP_PIN_4, PULSESXLITER_4, DETNAME_4,
                  DETPRICE_4, DET_CNTMAX,
                  10000.0 / PULSESXLITER_4 * TIMEXLITER_4);
-Dispenser disp_5(BTN_PIN_5, FLOW_PIN_5, PUMP_PIN_5, PULSESXLITER_5, "Test_5",
+Dispenser disp_5(BTN_PIN_5, FLOW_PIN_5, PUMP_PIN_5, PULSESXLITER_5, DETNAME_5,
                  DETPRICE_5, DET_CNTMAX,
                  10000.0 / PULSESXLITER_5 * TIMEXLITER_5);
-Dispenser disp_6(BTN_PIN_6, FLOW_PIN_6, PUMP_PIN_6, PULSESXLITER_6, "Test_6",
+Dispenser disp_6(BTN_PIN_6, FLOW_PIN_6, PUMP_PIN_6, PULSESXLITER_6, DETNAME_6,
                  DETPRICE_6, DET_CNTMAX,
                  10000.0 / PULSESXLITER_6 * TIMEXLITER_6);
 
@@ -56,11 +59,13 @@ Dispenser disp_6(BTN_PIN_6, FLOW_PIN_6, PUMP_PIN_6, PULSESXLITER_6, "Test_6",
 Dispenser* dispArr[DISPENSER_N] = {&disp_1, &disp_2, &disp_3,
                                    &disp_4, &disp_5, &disp_6};
 // array for buttons pins
-uint8_t btnArr[DISPENSER_N + 1] = {BTN_PIN_1, BTN_PIN_2, BTN_PIN_3,     BTN_PIN_4,
-                               BTN_PIN_5, BTN_PIN_6, BTN_PIN_BOTTLE};
+uint8_t btnArr[DISPENSER_N + 1] = {BTN_PIN_1,     BTN_PIN_2, BTN_PIN_3,
+                                   BTN_PIN_4,     BTN_PIN_5, BTN_PIN_6,
+                                   BTN_PIN_BOTTLE};
 // array for leds pins
-uint8_t ledArr[DISPENSER_N + 1] = {BTN_LED_1, BTN_LED_2, BTN_LED_3,     BTN_LED_4,
-                               BTN_LED_5, BTN_LED_6, BTN_LED_BOTTLE};
+uint8_t ledArr[DISPENSER_N + 1] = {BTN_LED_1,     BTN_LED_2, BTN_LED_3,
+                                   BTN_LED_4,     BTN_LED_5, BTN_LED_6,
+                                   BTN_LED_BOTTLE};
 
 // array for status: 0=OK, -1=EMPTY, -3=ERROR, -4=EMPTY+ERROR
 uint8_t statusArr[DISPENSER_N + 1] = {0};
@@ -162,7 +167,7 @@ void setup() {
             delay(100);
           }
 
-          DEBUG("Held: " + (String)held + "\n");
+          // DEBUG("Held: " + (String)held + "\n");
 
           // check for long or short press and exit while loop
           if (held == LONGPRESS_TIME) {
@@ -399,7 +404,8 @@ void loop() {
       // at time and the max quantity is integer number of liters
       // TODO handle this case just in case
       break;
-      default:break;
+    default:
+      break;
   }
 
   // BOTTLE DISPENSING
@@ -501,7 +507,7 @@ void loop() {
       lcd.bottlePosition_screen();
 
       // add small delay to avoid double check on single button pression
-      delay(800);
+      delay(1500);
 
       // warn user for bottle position and button press
       // endtime = now + 10 seconds
@@ -588,6 +594,8 @@ void softwareReset() {
   // start watchdog with the provided prescaler
   // possible value for prescaler are defined in wdt.h (WDTO_15MS,...)
   wdt_enable(WDTO_15MS);
+  while (1)
+    ;
 }
 
 String Controllino_timestamp() {
