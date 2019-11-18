@@ -11,18 +11,16 @@ struct Config {
   char detName_1[21];
 };
 
-const char *filename = "/config.txt";  // <- SD library uses 8.3 filenames
-Config config;                         // <- global configuration object
+const char *filename = "config.txt";  // <- SD library uses 8.3 filenames
+Config config;                        // <- global configuration object
 
 // Loads the configuration from a file
 void loadConfiguration(const char *filename, Config &config) {
   // Open file for reading
-  File file = SD.open(filename);
-
   // Allocate the memory pool on the stack.
   // Don't forget to change the capacity to match your JSON document.
   // Use arduinojson.org/assistant to compute the capacity.
-  StaticJsonBuffer<256> jsonBuffer;
+  /*StaticJsonBuffer<256> jsonBuffer;
 
   // Parse the root object
   JsonObject &root = jsonBuffer.parseObject(file);
@@ -37,14 +35,12 @@ void loadConfiguration(const char *filename, Config &config) {
           root["detName_1"] | "Detergente 1",  // <- source
           sizeof(config.detName_1));           // <- destination's capacity
 
-  // Close the file (File's destructor doesn't close the file)
-  file.close();
+  // Close the file (File's destructor doesn't close the file)*/
 }
 
 // Saves the configuration to a file
 void saveConfiguration(const char *filename, const Config &config) {
   // Delete existing file, otherwise the configuration is appended to the file
-  SD.remove(filename);
 
   // Open file for writing
   File file = SD.open(filename, FILE_WRITE);
@@ -52,11 +48,12 @@ void saveConfiguration(const char *filename, const Config &config) {
     Serial.println(F("Failed to create file"));
     return;
   }
+  file.write("ciao brunello merda");
 
   // Allocate the memory pool on the stack
   // Don't forget to change the capacity to match your JSON document.
   // Use https://arduinojson.org/assistant/ to compute the capacity.
-  StaticJsonBuffer<256> jsonBuffer;
+  /*StaticJsonBuffer<256> jsonBuffer;
 
   // Parse the root object
   JsonObject &root = jsonBuffer.createObject();
@@ -71,7 +68,7 @@ void saveConfiguration(const char *filename, const Config &config) {
     Serial.println(F("Failed to write to file"));
   }
 
-  // Close the file (File's destructor doesn't close the file)
+  // Close the file (File's destructor doesn't close the file)*/
   file.close();
 }
 
@@ -95,18 +92,23 @@ void printFile(const char *filename) {
 }
 
 void setup() {
+  // J2 -> RTC, J3 -> ETHERNET
+  // pin J2 and J3 as output
+  DDRJ |= B00001100;
+  // pin J2 low
+  PORTJ &= B11110011;
+  // pin J3 high
+  // PORTJ |= B00001000;
+
+  delay(1000);
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
-
-  // set RTC SS pin LOW, it should avoid conflict on the bus
-  Controllino_SetRTCSS(0);
 
   while (!Serial) continue;
 
   // Initialize SD library
-  while (!SD.begin()) {
-    Serial.println(F("Failed to initialize SD library"));
-    delay(1000);
+  while (!SD.begin(53)) {
+    Serial.println("nada");
   }
 
   // Should load default config if run for the first time

@@ -3,6 +3,8 @@
 #include <SPI.h>
 #include <SdFat.h>
 
+// TODO verify if CS is low after a call to file.close()
+
 // Configuration that we'll store on disk
 struct Config {
   uint screenTimeout;
@@ -14,7 +16,7 @@ struct Config {
 SdFat SD;
 Config config;
 
-#define SD_CS_PIN 4
+#define SD_CS_PIN 6
 #define FILENAME "config.json"
 
 File myFile;
@@ -106,6 +108,7 @@ void setup() {
 
   // set RTC SS pin LOW, it should avoid conflict on the bus
   Controllino_SetRTCSS(0);
+  delay(3000);
 
   Serial.print("Initializing SD card...");
 
